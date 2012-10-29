@@ -1,0 +1,20 @@
+package com.parworks.androidlibrary.response;
+
+public class AugmentImageResponse {
+	private boolean mSuccess;
+	private String mImgId;
+	
+	public void setImgId(String imgId) {
+		mImgId = imgId;
+	}
+	public String getImgId() {
+		return mImgId;
+	}
+	public void setSuccess(boolean success) {
+		mSuccess = success;
+	}
+	public boolean getSuccess() {
+		return mSuccess;
+	}
+	
+}

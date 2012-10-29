@@ -1,6 +1,6 @@
 package com.parworks.androidlibrary.response;
 
-public class AddSiteResponse {
+public class BasicResponse {
 	
 	private boolean mSuccess;
 	

@@ -8,6 +8,8 @@ package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
 
+import com.parworks.androidlibrary.response.SiteInfo;
+
 public interface ARSite {
 	
 	public enum State {
@@ -17,8 +19,7 @@ public interface ARSite {
 		NEEDS_OVERLAYS
 	}
 	
-	
-	public String getSiteId();
+	public SiteInfo getSiteInfo();
 
 	/*
 	 * Asynchronous Methods
@@ -26,7 +27,7 @@ public interface ARSite {
 	 */
 	
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
-	public void addBaseImage(InputStream in, ARListener<BaseImageInfo> listener);
+	public void addBaseImage(String filename, InputStream image, ARListener<BaseImageInfo> listener);
 	
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
 	public void processBaseImages(ARListener<State> listener);
@@ -56,7 +57,7 @@ public interface ARSite {
 	 * 
 	 */
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
-	public BaseImageInfo addBaseImage(InputStream in);
+	public BaseImageInfo addBaseImage(String filename, InputStream image);
 	
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
 	public State processBaseImages();

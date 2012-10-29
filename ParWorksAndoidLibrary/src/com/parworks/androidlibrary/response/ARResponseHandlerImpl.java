@@ -23,7 +23,7 @@ public class ARResponseHandlerImpl implements ARResponseHandler {
 		} catch (JsonMappingException e) {
 			throw new ARException("Mapping the json response to the response object " + typeOfResponse + " failed.",e);
 		} catch (IllegalStateException e) {
-			throw new ARException("Couldn't convert the http response to an inputstream.",e);
+			throw new ARException("Couldn't convert the http response to an inputstream because of illegal state.",e);
 		} catch (IOException e) {
 			throw new ARException("Couldn't convert the http response to an inputstream.",e);
 		}

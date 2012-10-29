@@ -1,19 +1,40 @@
 package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.parworks.androidlibrary.ar.ARSite.State;
+import org.apache.http.HttpResponse;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.InputStreamBody;
+
+import com.parworks.androidlibrary.response.ARResponseHandler;
+import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
+import com.parworks.androidlibrary.response.AddBaseImageResponse;
+import com.parworks.androidlibrary.response.AugmentImageResponse;
+import com.parworks.androidlibrary.response.BasicResponse;
+import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
+import com.parworks.androidlibrary.response.SiteInfo;
+import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
 	
-	private String mSiteId;
+	private SiteInfo mSiteInfo;
+	private String mApiKey;
+	private String mSalt;
+	private String mSignature;
 	
-	public ARSiteImpl(String siteId) {
-		mSiteId = siteId;
+	private State mSiteState;
+	
+	public ARSiteImpl(SiteInfo info, String apiKey, String salt, String signature) {
+		mSiteInfo = info;
+		mApiKey = apiKey;
+		mSalt = salt;
+		mSignature = signature;
 	}
 	
-	public String getSiteId() {
-		return mSiteId;
+	public SiteInfo getSiteInfo() {
+		return mSiteInfo;
 	}
 
 	
@@ -27,7 +48,7 @@ public class ARSiteImpl implements ARSite {
 	 */
 	
 	@Override
-	public void addBaseImage(InputStream in, ARListener<BaseImageInfo> listener) {
+	public void addBaseImage(String filename, InputStream in, ARListener<BaseImageInfo> listener) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -93,45 +114,118 @@ public class ARSiteImpl implements ARSite {
 	 */
 
 	@Override
-	public BaseImageInfo addBaseImage(InputStream in) {
-		// TODO Auto-generated method stub
-		return null;
+	public BaseImageInfo addBaseImage(String filename, InputStream image) {
+		//make httputils
+		HttpUtils httpUtils = new HttpUtils();
+		
+		//make query string
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mSiteInfo.getId());
+		params.put("filename", filename);
+		
+		//make entity
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(image,filename);
+		imageEntity.addPart("image", imageInputStreamBody);
+		
+		//do post
+		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_BASE_IMAGE_PATH, imageEntity, params);
+		
+		//handle status code
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		//parse response
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AddBaseImageResponse addSiteResponse = responseHandler.handleResponse(serverResponse, AddBaseImageResponse.class);
+		
+		//return baseimageinfo
+		if(addSiteResponse.getSuccess() == true) {
+			return new BaseImageInfo(addSiteResponse.getId());
+		} else {
+			throw new ARException("Successfully communicated with the server but failed to add the base image. Perhaps the site does not exist, or there is a problem with the image.");
+		}
+			
 	}
 
 	@Override
 	public State processBaseImages() {
-		// TODO Auto-generated method stub
-		return null;
+		HttpUtils httpUtils = new HttpUtils();
+		
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mSiteInfo.getId());
+				
+		HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSalt, mSignature, , params);
+		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		InitiateBaseImageProcessingResponse addSiteResponse = responseHandler.handleResponse(serverResponse, InitiateBaseImageProcessingResponse.class);
+		
 	}
 
 	@Override
 	public State getState() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public OverlayResponse addOverlay(Overlay overlay) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public OverlayResponse updateOverlay(String id, OverlayData data) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void deleteOverlay(String id) {
-		// TODO Auto-generated method stub
+		HttpUtils httpUtils = new HttpUtils();
+		
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mSiteInfo.getId());
+		params.put("id", id);
+		
+		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_OVERLAY_PATH, params);
+		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		BasicResponse deleteOverlayResponse = responseHandler.handleResponse(serverResponse, BasicResponse.class);
+		
+		if(deleteOverlayResponse.getSuccess() == false) {
+			throw new ARException("Successfully communicated with the server, but the overlay was not deleted. Perhaps it does not exist.");
+		} 
 		
 	}
 
 	@Override
 	public ARData augmentImage(InputStream in) {
-		// TODO Auto-generated method stub
-		return null;
+		HttpUtils httpUtils = new HttpUtils();
+		
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mSiteInfo.getId());
+		
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(in,"image");
+		imageEntity.addPart("image", imageInputStreamBody);
+		
+		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, imageEntity, params);
+		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AugmentImageResponse augmentImageResponse = responseHandler.handleResponse(serverResponse, AugmentImageResponse.class);
+		
+		if(augmentImageResponse.getSuccess() == false) {
+			throw new ARException("Successfully communicated with the server but failed to augment the image.");
+		}
+		
+		String imgId = augmentImageResponse.getImgId();
+		
+		
+		
+		
 	}
 
 	@Override

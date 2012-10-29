@@ -1,13 +1,12 @@
 package com.parworks.androidlibrary.response;
 
-import java.util.Map;
 
 public class GetSiteInfoResponse {
 	
-	private Map<String,Object> site;
+	private SiteInfo site;
 	boolean success;
 	
-	public void setSite(Map<String,Object> mySite) {
+	public void setSite(SiteInfo mySite) {
 		site = mySite;
 	}
 	public void setSuccess(boolean s) {
@@ -16,7 +15,7 @@ public class GetSiteInfoResponse {
 	public boolean getSuccess() {
 		return success;
 	}
-	public Map<String,Object> getSite() {
+	public SiteInfo getSite() {
 		return site;
 	}
 
