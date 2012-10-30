@@ -22,14 +22,17 @@ import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.utils.AsyncHttpUtils;
 import com.parworks.androidlibrary.utils.HttpCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
-
+/**
+ * Used for Synchronously and Asynchronously finding, managing, and creating ARSites
+ * @author Jules White, Adam Hickey
+ *
+ */
 public class ARSites {
 	
 	private String mApiKey;
 	private String mSalt;
 	private String mSignature;
 		
-	
 	public ARSites(String username, String password) {
 		
 		//TODO fix this!!! 
@@ -41,8 +44,15 @@ public class ARSites {
 	
 	
 	/**
-	 * Async interfaces
-	 * 
+	 * Asynchronously create an ARSite
+	 * @param id the id of the site. Will be used for all site accesses
+	 * @param name the name of the site
+	 * @param lon longitude of the site
+	 * @param lat latitude of the site
+	 * @param desc site description
+	 * @param feature site feature
+	 * @param channel site channel
+	 * @param listener callback that provides an ARSite object when the call completes
 	 */
 	public void create(final String id, final String name, final double lon, final double lat, final String desc, final String feature, final String channel, final ARListener<ARSite> listener){
 		Map<String,String> parameterMap = new HashMap<String,String>();
@@ -100,6 +110,13 @@ public class ARSites {
 		
 	}
 	
+	/**
+	 * Asynchronously create an ARSite
+	 * @param id the id of the site. Will be used for all site accesses
+	 * @param desc site description
+	 * @param channel site channel
+	 * @param listener callback that provides an ARSite object when the call completes
+	 */
 	public void create(final String id, final String desc, final String channel, final ARListener<ARSite> listener){
 		Map<String,String> parameterMap = new HashMap<String,String>();
 		parameterMap.put("id", id);
@@ -145,10 +162,25 @@ public class ARSites {
 		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap, callback);
 	}
 	
+	/**
+	 * Asynchronously finds the site nearest a given latitude and longitude. This method does not specify the maximum number of sites, and so the default is one. Use near(double, double, int, double, ARListener)
+	 * to retrieve multiple sites.
+	 * @param lat latitude
+	 * @param lon longitude
+	 * @param sites the callback which provides a list of sites nearest the coordinates
+	 */
 	public void near(double lat, double lon, ARListener<List<ARSite>> sites) {
 		near(Double.toString(lat),Double.toString(lon),"","",sites);
 	}
 	
+	/**
+	 * Asynchronously finds the sites nearest a set of coordinates
+	 * @param lat latitude
+	 * @param lon longitude
+	 * @param max the maximum number of sites to return.
+	 * @param radius the radius in which to search
+	 * @param sites the callback which provides a list of the nearest ARSites
+	 */
 	public void near(double lat, double lon, int max, double radius,ARListener<List<ARSite>> sites){
 		near(Double.toString(lat),Double.toString(lon),Integer.toString(max),Double.toString(radius),sites);
 	}
@@ -200,6 +232,11 @@ public class ARSites {
 		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.NEARBY_SITE_PATH, parameterMap, callback);
 	}
 	
+	/**
+	 * Asynchronously get a previously created site
+	 * @param id the id of the site
+	 * @param listener the callback which provides the ARSite once the call completes
+	 */
 	public void getExisting(String id, final ARListener<ARSite> listener){
 		Map<String,String> parameterMap = new HashMap<String,String>();
 		parameterMap.put("site", id);
@@ -248,7 +285,11 @@ public class ARSites {
 	 * 
 	 */
 	
-	
+	/**
+	 * Synchronously get a previously created site
+	 * @param id site id
+	 * @return the ARSite
+	 */
 	public ARSite getExisting(String id){
 		Map<String,String> parameterMap = new HashMap<String,String>();
 		parameterMap.put("id", id);
@@ -273,7 +314,13 @@ public class ARSites {
 	}
 
 	
-	
+	/**
+	 * Synchronously create an ARSite
+	 * @param id the site id. Will be used for accessing the site.
+	 * @param desc the site description
+	 * @param channel the site channel
+	 * @return the newly created ARSite
+	 */
 	public ARSite create(String id, String desc, String channel) {
 		Map<String,String> parameterMap = new HashMap<String,String>();
 		parameterMap.put("id", id);
@@ -299,6 +346,17 @@ public class ARSites {
 		}
 	}
 	
+	/**
+	 * Synchronously create an ARSites
+	 * @param id
+	 * @param name
+	 * @param lon
+	 * @param lat
+	 * @param desc
+	 * @param feature
+	 * @param channel
+	 * @return
+	 */
 	public ARSite create(String id, String name, double lon, double lat, String desc, String feature, String channel){
 		Map<String,String> parameterMap = new HashMap<String,String>();
 		parameterMap.put("id", id);

@@ -1,7 +1,11 @@
 package com.parworks.androidlibrary.response;
 
 import java.util.List;
-
+/**
+ * Used to deserialize the server response from the Nearby Sites endpoint
+ * @author Adam hickey
+ *
+ */
 public class NearbySitesResponse {
 	
 	List<SiteInfo> mSites;

@@ -9,6 +9,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parworks.androidlibrary.ar.ARException;
 
+/**
+ * 
+ * @author Adam Hickey
+ *
+ */
 public class ARResponseHandlerImpl implements ARResponseHandler {
 
 	@Override

@@ -21,7 +21,11 @@ import com.parworks.androidlibrary.ar.ARException;
 
 
 
-
+/**
+ * Class used for synchronous HTTP calls. Also contains the url and paths for all endpoints.
+ * @author Adam Hickey
+ *
+ */
 public class HttpUtils {
 	
 	public final static String PARWORKS_API_BASE_URL = "http://dev.parworksapi.com"; 
@@ -45,11 +49,27 @@ public class HttpUtils {
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
 	
 	
-	
+	/**
+	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
+	 * @param apiKey the user's api key.
+	 * @param salt 
+	 * @param signature
+	 * @param url the absolute url or the endpoint
+	 * @return the http response
+	 */
 	public HttpResponse doGet(String apiKey, String salt,
 			String signature, String url) {
 		return doGet(apiKey,salt,signature,url, new HashMap<String,String>());
 	}
+	/**
+	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
+	 * @param apiKey
+	 * @param salt
+	 * @param signature
+	 * @param url absolute url to endpoing
+	 * @param queryString 
+	 * @return the http response
+	 */
 	public HttpResponse doGet(String apiKey, String salt,
 			String signature, String url, Map<String, String> queryString) {
 		HttpResponse response = null;
@@ -75,10 +95,30 @@ public class HttpUtils {
 
 	}
 	
+	/**
+	 * Synchronous HTTP post to the specified url. Set's apikey, salt, and signature as headers.
+	 * @param apiKey
+	 * @param salt
+	 * @param signature
+	 * @param url absolute url to endpoing
+	 * @param queryString
+	 * @return the HTTP response
+	 */
+	
 	public HttpResponse doPost(String apiKey, String salt,
 			String signature, String url, Map<String,String> queryString) {
 		return doPost(apiKey, salt, signature, url,new MultipartEntity(), queryString);
 	}
+	/**
+	 * Synchronous HTTP post to the specified url. Set's apikey, salt, and signature as headers.
+	 * @param apiKey
+	 * @param salt
+	 * @param signature
+	 * @param url
+	 * @param entity a multipart entity that can be used for sending images to api endpoints
+	 * @param queryString
+	 * @return the http response
+	 */
 	public HttpResponse doPost(String apiKey, String salt,
 			String signature, String url, MultipartEntity entity, Map<String,String> queryString) {
 			
@@ -128,6 +168,11 @@ public class HttpUtils {
 		return url;
 	}
 	
+	/**
+	 * Returns if 226 >= statusCode >= 200
+	 * Otherwise, throws an ARException.
+	 * @param statusCode
+	 */
 	public static void handleStatusCode(int statusCode ) {
 		if( (226 >= statusCode) && (statusCode >= 200) ) {
 			return;

@@ -1,5 +1,11 @@
 package com.parworks.androidlibrary.response;
 
+/**
+ * Used to deserialize the response from the Initiate base Image Processing Endpoint
+ * @author Adam Hickey
+ *
+ */
+
 public class InitiateBaseImageProcessingResponse {
 	
 	private boolean mSuccess;

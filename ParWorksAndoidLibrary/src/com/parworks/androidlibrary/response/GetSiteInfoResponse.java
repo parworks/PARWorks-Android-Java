@@ -1,6 +1,10 @@
 package com.parworks.androidlibrary.response;
 
-
+/**
+ * Used to deserialize the response from the Get Site Info endpoint
+ * @author Adam Hickey
+ *
+ */
 public class GetSiteInfoResponse {
 	
 	private SiteInfo site;

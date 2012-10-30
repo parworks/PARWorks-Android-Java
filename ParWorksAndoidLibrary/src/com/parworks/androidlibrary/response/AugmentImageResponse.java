@@ -1,5 +1,9 @@
 package com.parworks.androidlibrary.response;
-
+/**
+ * Used to deserialize the response from the Augment Image endpoing
+ * @author Adam Hickey
+ *
+ */
 public class AugmentImageResponse {
 	private boolean mSuccess;
 	private String mImgId;

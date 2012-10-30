@@ -1,5 +1,10 @@
 package com.parworks.androidlibrary.response;
 
+/**
+ * An object specifying all the information about an ARSite. This contains all of the attributes returned by the Get Site Info endpoint.
+ * @author Adam Hickey
+ *
+ */
 public class SiteInfo {
 	private String mName;
 	private String mId;

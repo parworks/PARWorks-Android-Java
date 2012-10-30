@@ -5,7 +5,11 @@
  ** 
  */
 package com.parworks.androidlibrary.ar;
-
+/**
+ * 
+ * @author Jules White
+ *
+ */
 public class OverlayData {
 
 	private float vertices_;

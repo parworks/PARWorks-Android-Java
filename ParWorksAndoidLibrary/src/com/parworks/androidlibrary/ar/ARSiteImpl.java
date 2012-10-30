@@ -32,10 +32,6 @@ public class ARSiteImpl implements ARSite {
 		mSalt = salt;
 		mSignature = signature;
 	}
-	
-	public SiteInfo getSiteInfo() {
-		return mSiteInfo;
-	}
 
 	
 	
@@ -236,7 +232,20 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void delete() {
-		// TODO Auto-generated method stub
+		HttpUtils httpUtils = new HttpUtils();
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mSiteInfo.getId());
+		
+		HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.REMOVE_SITE_PATH, params);
+		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		BasicResponse deleteSiteResponse = responseHandler.handleResponse(serverResponse, BasicResponse.class);
+		
+		if(deleteSiteResponse.getSuccess() == false) {
+			throw new ARException("Successfully communicated with the server, but was unable to delete the site. Perhaps the site no longer exists.");
+		}
 		
 	}
 	

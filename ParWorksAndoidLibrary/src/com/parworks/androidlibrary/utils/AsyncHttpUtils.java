@@ -28,8 +28,22 @@ import org.apache.http.entity.mime.MultipartEntity;
 
 import android.util.Log;
 
+/**
+ * Class for doing Asynchronous HTTP methods
+ * @author Adam Hickey
+ *
+ */
 public class AsyncHttpUtils {
 
+	/**
+	 * Does an asynchronous HTTP get
+	 * @param apiKey
+	 * @param salt
+	 * @param signature
+	 * @param url absolute url to endpoint
+	 * @param params the parameters that will make up the query string
+	 * @param callback the callback to receive the http response
+	 */
 	public void doGet(String apiKey,String salt, String signature,String url, Map<String,String> params, HttpCallback callback) {
 		url = HttpUtils.appendQueryStringToUrl(url, params);
 		HttpGet get = new HttpGet(url);
@@ -41,6 +55,16 @@ public class AsyncHttpUtils {
 		task.execute(rinfo);
 	}
 
+	/**
+	 * Does an asynchronous HTTP post 
+	 * @param apiKey
+	 * @param salt
+	 * @param signature
+	 * @param url absolute url to endpoing
+	 * @param params the parameters that will make up the query string
+	 * @param entity a multipart entity. Can be used to sending images to endpoints
+	 * @param callback the callback to receive the http response
+	 */
 	public void doPost(String apiKey, String salt, String signature, String url, Map<String, String> params, MultipartEntity entity,
 			HttpCallback callback) {
 		try {
@@ -62,18 +86,5 @@ public class AsyncHttpUtils {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	public static String responseToString(HttpResponse response) throws IOException{
-		InputStream in = response.getEntity().getContent();
-		InputStreamReader ir = new InputStreamReader(in);
-		BufferedReader bin = new BufferedReader(ir);
-		String line = null;
-		StringBuffer buff = new StringBuffer();
-		while((line = bin.readLine())!=null){
-			buff.append(line+"\n");
-		}
-		bin.close();
-		return buff.toString();
 	}
 }

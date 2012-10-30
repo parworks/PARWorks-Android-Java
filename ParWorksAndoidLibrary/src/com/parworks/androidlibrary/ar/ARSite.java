@@ -8,10 +8,21 @@ package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
 
-import com.parworks.androidlibrary.response.SiteInfo;
-
+/**
+ * An interface representing an ARSite
+ * 
+ * The state of an ARSite. Begins at NEEDS_MORE_BASE_IMAGES, then changes to NEEDS_BASE_IMAGE_PROCESSING when the required number of base images have been uploaded.
+ * After the base images have been processed, the state of an ARSite changes to NEEDS_OVERLAYS and finally to READY_TO_AUGMENT_IMAGES
+ * @author Jules White
+ *
+ */
 public interface ARSite {
 	
+	/**
+	 * An enum representing ARSite state
+	 * @author Jules White
+	 *
+	 */
 	public enum State {
 		READY_TO_AUGMENT_IMAGES, 
 		NEEDS_MORE_BASE_IMAGES,
@@ -19,65 +30,146 @@ public interface ARSite {
 		NEEDS_OVERLAYS
 	}
 	
-	public SiteInfo getSiteInfo();
 
-	/*
-	 * Asynchronous Methods
-	 * 
+	/**
+	 * Asynchronously add a base image. Throws an ARException if the state is not NEEDS_MORE_BASE_IMAGES or NEEDS_BASE_IMAGE_PROCESSING
+	 * @param filename the name of the base image
+	 * @param image an image as an InputStream
+	 * @param listener the callback to be used when the call completes containing a BaseImageInfo object with the id of the new base image.
 	 */
-	
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
 	public void addBaseImage(String filename, InputStream image, ARListener<BaseImageInfo> listener);
 	
+	/**
+	 * Asynchronously begin processing the base images. Throws an ARException if the state is not NEEDS_BASE_IMAGE_PROCESSING
+	 * @param listener the callback to be used when the call completes providing the state of the site
+	 */
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
 	public void processBaseImages(ARListener<State> listener);
 	
+	/**
+	 * Asynchronously gets the current state of the ARSite
+	 * @param listener the callback to be used when the call completes providing the state of the site
+	 */
 	public void getState(ARListener<State> listener);
 	
+	/**
+	 * Asynchronously add an overlay. Throws an ARException if the state is not NEEDS_OVERLAYS or READY_TO_AUGMENT_IMAGES
+	 * @param overlay the overlay to add
+	 * @param listener the callback to be used when the call completes providing an overlay response which contains the new overlay id
+	 */
 	@RequiredState({State.NEEDS_OVERLAYS,State.READY_TO_AUGMENT_IMAGES})
 	public void addOverlay(Overlay overlay, ARListener<OverlayResponse> listener);
 	
+	/**
+	 * Asynchronously update an overlay. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param id the overlay id
+	 * @param data the overlay data
+	 * @param listener the callback to be used when the call completes providing an overlay response which contains the new overlay id
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void updateOverlay(String id, OverlayData data, ARListener<OverlayResponse> listener);
 	
+	/**
+	 * Asynchronously remove an overlay from the site. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param id the overlay id
+	 * @param listener the callback to be used when the call completes providing an overlay response which contains the new overlay id
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void deleteOverlay(String id, ARListener<OverlayResponse> listener);
 	
+	/**
+	 * Asynchronously augment an image. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param in the image in the form of an InputStream
+	 * @param listener the callback to be used when the call completes providing an ARData object which contains a focal length and list of image overlays
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void augmentImage(InputStream in, ARListener<ARData> listener);
 	
+	/**
+	 * Asynchronously augment an image and provide location coordinates. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param in the image in the form of an InputStream
+	 * @param lat the latitude of the image
+	 * @param lon the longitude of the image
+	 * @param compass the heading of the image
+	 * @param listener the callback to be used when the call completes providing an ARData object which contains a focal length and list of image overlays
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void augmentImage(InputStream in, long lat, long lon, double compass, ARListener<ARData> listener);
+	public void augmentImage(InputStream in, double lat, double lon, double compass, ARListener<ARData> listener);
 	
+	/**
+	 * Asynchronously delete the site.
+	 * @param listener callback to be used when the call completes providing a boolean indicating success or failure
+	 */
 	public void delete(ARListener<Boolean> listener);
 	
-	/*
-	 * Synchronous Methods
-	 * 
-	 * 
+	/**
+	 * Synchronously add a base image. Throws an ARException if the state is not NEEDS_MORE_BASE_IMAGES or NEEDS_BASE_IMAGE_PROCESSING
+	 * @param filename the name of the image
+	 * @param image the image as an InputStream
+	 * @return a BaseImageInfo object containing the id of the new base image
 	 */
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
 	public BaseImageInfo addBaseImage(String filename, InputStream image);
 	
+
+	/**
+	 * Synchronously process base images. Throws an ARException if the state is not NEEDS_BASE_IMAGE_PROCESSING
+	 * @return the state of the site
+	 */
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
 	public State processBaseImages();
 	
+	/**
+	 * Synchronously get the state of the site
+	 * @return the state of the site
+	 */
 	public State getState();
 		
+	/**
+	 * Synchronously add an overlay. Throws an ARException if the state is not NEEDS_OVERLAYS or READY_TO_AUGMENT_IMAGES
+	 * @param overlay the overlay to add
+	 * @return an OverlayResponse containing the id of the new overlay
+	 */
 	@RequiredState({State.NEEDS_OVERLAYS,State.READY_TO_AUGMENT_IMAGES})
 	public OverlayResponse addOverlay(Overlay overlay);
 	
+	/**
+	 * Synchronously update an overlay. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES 
+	 * @param id the id of the overlay to update
+	 * @param data the data with which to update the specified overlay
+	 * @return an OverlayResponse containing the id of the new overlya
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public OverlayResponse updateOverlay(String id, OverlayData data);
 	
+	/**
+	 * Synchronously delete an overlay. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param id the id of the overlay to delete
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void deleteOverlay(String id);
 	
+	/**
+	 * Synchronously augment an image. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param in the image to augment in the form of an InputStream
+	 * @return an ARData object containing the focal length and overlays for that augmented image
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public ARData augmentImage(InputStream in);
 	
+	/**
+	 * Synchronously augment an image and provide coordinates. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
+	 * @param in the image to augment in the form of an InputStream
+	 * @param lat the latitude of the image
+	 * @param lon the longitude of the image
+	 * @return an ARData object specifying the focal length and overlays of the augmented image
+	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public ARData augmentImage(InputStream in, long lat, long lon);
 	
+	/**
+	 * Synchronously delete the site
+	 */
 	public void delete();
 }

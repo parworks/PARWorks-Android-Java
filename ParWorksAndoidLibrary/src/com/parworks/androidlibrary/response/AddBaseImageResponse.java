@@ -1,5 +1,10 @@
 package com.parworks.androidlibrary.response;
 
+/**
+ * Used to deserialize the http response from the Add Base Image endpoint
+ * @author Adam Hickey
+ *
+ */
 public class AddBaseImageResponse {
 	private String mId;
 	private boolean mSuccess;
