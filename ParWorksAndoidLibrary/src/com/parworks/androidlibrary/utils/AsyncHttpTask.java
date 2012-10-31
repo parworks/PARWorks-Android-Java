@@ -5,7 +5,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class AsyncHttpTask extends AsyncTask<HttpRequestInfo, Integer, HttpRequestInfo> {
 

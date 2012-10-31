@@ -11,18 +11,31 @@ public class SiteInfo {
 	private String mChannel;
 	private String mDescription;
 	private String mGeoHash;
-	private String mSiteState;
+	private SiteState mSiteState;
 	private double mLatitude;
 	private double mLongitude;
-	private String mBimState;
+	private BimState mBimState;
 	private String mFeatureType;
 	private String mS3Bucket;
 	private String mLastModificationTime;
 	
+	public enum BimState {
+		PROCESSING,
+		PROCESSED,
+		PROCESSING_FAILED,
+		NOT_PROCESSED
+	}
+	public enum SiteState {
+		PROCESSING,
+		PROCESSED,
+		PROCESSING_FAILED,
+		NOT_PROCESSED		
+	}
+	
 	public SiteInfo() {}
 	
-	public SiteInfo(String name, String id, String channel, String description, String geoHash, String siteState,
-			double lat, double lon, String bimState, String featureType, String s3Bucket, String lastModificationTime) {
+	public SiteInfo(String name, String id, String channel, String description, String geoHash, SiteState siteState,
+			double lat, double lon, BimState bimState, String featureType, String s3Bucket, String lastModificationTime) {
 		mName = name;
 		mId = id;
 		mChannel = channel;
@@ -67,10 +80,10 @@ public class SiteInfo {
 	public void setGeoHash(String geoHash) {
 		this.mGeoHash = geoHash;
 	}
-	public String getSiteState() {
+	public SiteState getSiteState() {
 		return mSiteState;
 	}
-	public void setSiteState(String siteState) {
+	public void setSiteState(SiteState siteState) {
 		this.mSiteState = siteState;
 	}
 	public double getLat() {
@@ -85,10 +98,10 @@ public class SiteInfo {
 	public void setLon(double lon) {
 		this.mLongitude = lon;
 	}
-	public String getBimState() {
+	public BimState getBimState() {
 		return mBimState;
 	}
-	public void setBimState(String bimState) {
+	public void setBimState(BimState bimState) {
 		this.mBimState = bimState;
 	}
 	public String getFeatureType() {

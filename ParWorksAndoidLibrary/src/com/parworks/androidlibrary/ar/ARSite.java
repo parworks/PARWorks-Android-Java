@@ -8,6 +8,8 @@ package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
 
+import com.parworks.androidlibrary.response.SiteInfo;
+
 /**
  * An interface representing an ARSite
  * 
@@ -172,4 +174,6 @@ public interface ARSite {
 	 * Synchronously delete the site
 	 */
 	public void delete();
+
+	public SiteInfo getSiteInfo();
 }

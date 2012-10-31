@@ -3,8 +3,6 @@ package com.parworks.androidlibrary.utils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import android.util.Log;
-
 public class HttpRequestInfo {
 
 	private HttpUriRequest request_;

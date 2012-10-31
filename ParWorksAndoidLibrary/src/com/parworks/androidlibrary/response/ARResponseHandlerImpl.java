@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.http.HttpResponse;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parworks.androidlibrary.ar.ARException;
@@ -19,6 +20,7 @@ public class ARResponseHandlerImpl implements ARResponseHandler {
 	@Override
 	public <T> T handleResponse(HttpResponse serverResponse, Class<T> typeOfResponse) {
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		T responseObject = null;
 		
 		try {

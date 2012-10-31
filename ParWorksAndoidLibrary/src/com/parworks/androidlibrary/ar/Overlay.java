@@ -6,6 +6,7 @@
 */
 package com.parworks.androidlibrary.ar;
 
+
 public interface Overlay {
 
 	public String getId();

@@ -8,7 +8,22 @@ package com.parworks.androidlibrary.ar;
 
 import org.apache.http.HttpResponse;
 
-
+/**
+ * Used by the ARListener callback to generically provide the response to an asynchronous request.
+ * 
+ * 
+ * Example:
+ *     ARsites arsites = new ARSites("user","password");
+ *     arSites.near(latitude,longitude,max,radius,new ARListener<List<ARSite>>() {
+ *     		
+ *         public void handleResponse(ARResponse<List<ARSite>> resp) {
+ *             List<ARSite> nearbySites = resp.getPayload();
+ *             //do something with the sites...
+ *         }
+ * @author Jules White
+ *
+ * @param <T>
+ */
 public class ARResponse<T> {
 
 	public static <T> ARResponse<T> from(HttpResponse resp, PayloadExtractor<T> extractor){
@@ -37,6 +52,19 @@ public class ARResponse<T> {
 		responseCode_ = responsecode;
 	}
 
+	/**
+	 * Used to get the desired object after an asynchronous request.
+	 * 
+	 * Example:
+     *     ARsites arsites = new ARSites("user","password");
+     *     arSites.near(latitude,longitude,max,radius,new ARListener<List<ARSite>>() {
+     *     		
+     *         public void handleResponse(ARResponse<List<ARSite>> resp) {
+     *             List<ARSite> nearbySites = resp.getPayload();
+     *             //do something with the sites...
+     *         }
+	 * @return the specified response object of type T
+	 */
 	public T getPayload() {
 		return payload_;
 	}

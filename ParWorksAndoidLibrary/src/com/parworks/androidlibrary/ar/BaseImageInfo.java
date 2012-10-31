@@ -6,6 +6,11 @@
  */
 package com.parworks.androidlibrary.ar;
 
+/**
+ * Returned after adding a base image to an ARSite. Contains the id necessary to access that base image.
+ * @author Jules White
+ *
+ */
 public class BaseImageInfo {
 
 	private final String baseImageId_;

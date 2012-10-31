@@ -281,7 +281,7 @@ public class ARSites {
 	
 	
 	/*
-	 * Please create synchronous equivalents of the above methods
+	 *  synchronous methods
 	 * 
 	 */
 	
@@ -347,15 +347,15 @@ public class ARSites {
 	}
 	
 	/**
-	 * Synchronously create an ARSites
-	 * @param id
-	 * @param name
-	 * @param lon
-	 * @param lat
-	 * @param desc
-	 * @param feature
-	 * @param channel
-	 * @return
+	 * Synchronously create an ARSite
+	 * @param id the site id. Will be used for accessing the site.
+	 * @param name the name of the site
+	 * @param lon longitude
+	 * @param lat latitude
+	 * @param desc description
+	 * @param feature site feature
+	 * @param channel site channel
+	 * @return the newly created ARSite
 	 */
 	public ARSite create(String id, String name, double lon, double lat, String desc, String feature, String channel){
 		Map<String,String> parameterMap = new HashMap<String,String>();
@@ -388,9 +388,24 @@ public class ARSites {
 		
 	}
 	
+	/**
+	 * Synchronously finds the site closest to the given latitude and longitude.
+	 * @param lat latitude
+	 * @param lon longitude
+	 * @return a list containing the closest ARSite to the given coordinates
+	 */
 	public List<ARSite> near(double lat, double lon) {
 		return near(Double.toString(lat),Double.toString(lon),"","");
 	}
+	
+	/**
+	 * Synchronously finds the closest sites to the given coordinates.
+	 * @param lat latitude
+	 * @param lon longitude
+	 * @param max the maximum number of sites to return
+	 * @param radius the distance from the coordinates in which to search
+	 * @return a list of the nearby sites
+	 */
 	public List<ARSite> near(double lat, double lon, int max, double radius ) {
 		return near(Double.toString(lat),Double.toString(lon),Integer.toString(max),Double.toString(radius));
 	}

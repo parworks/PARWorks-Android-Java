@@ -8,6 +8,11 @@ package com.parworks.androidlibrary.ar;
 
 public class ARException extends RuntimeException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 788849144204160189L;
+
 	public ARException() {
 		super();
 		// TODO Auto-generated constructor stub
