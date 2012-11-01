@@ -25,7 +25,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 
-public class HMacShaPasswordEncoder { implements PasswordEncoder {
+public class HMacShaPasswordEncoder implements PasswordEncoder {
 
     private static final int DEFAULT_ENCRYPTION_STRENGTH = 128;
     private static final String ENCODING_FOR_ENCRYPTION = "UTF-8";
