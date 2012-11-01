@@ -1,9 +1,16 @@
-/* 
-**
-** Copyright 2012, Jules White
-**
-** 
-*/
+/*
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
@@ -32,6 +39,11 @@ public interface ARSite {
 		NEEDS_OVERLAYS
 	}
 	
+	/**
+	 * Makes an asynchronous server request to get site info
+	 * @param listener the callback to be used when the call completes. Will contain a SiteInfo object.
+	 */
+	public void getSiteInfo(ARListener<SiteInfo> listener);
 
 	/**
 	 * Asynchronously add a base image. Throws an ARException if the state is not NEEDS_MORE_BASE_IMAGES or NEEDS_BASE_IMAGE_PROCESSING
@@ -47,10 +59,10 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing the state of the site
 	 */
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
-	public void processBaseImages(ARListener<State> listener);
+	public void processBaseImages(ARListener<String> listener);
 	
 	/**
-	 * Asynchronously gets the current state of the ARSite
+	 * Makes an asynchronous server request to get the current state of the ARSite
 	 * @param listener the callback to be used when the call completes providing the state of the site
 	 */
 	public void getState(ARListener<State> listener);
@@ -70,7 +82,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing an overlay response which contains the new overlay id
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void updateOverlay(String id, OverlayData data, ARListener<OverlayResponse> listener);
+	public void updateOverlay(String id, Overlay overlay, ARListener<OverlayResponse> listener);
 	
 	/**
 	 * Asynchronously remove an overlay from the site. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
@@ -78,7 +90,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing an overlay response which contains the new overlay id
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void deleteOverlay(String id, ARListener<OverlayResponse> listener);
+	public void deleteOverlay(String id, ARListener<Boolean> listener);
 	
 	/**
 	 * Asynchronously augment an image. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
@@ -86,7 +98,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing an ARData object which contains a focal length and list of image overlays
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void augmentImage(InputStream in, ARListener<ARData> listener);
+	public void augmentImage(InputStream in, ARListener<AugmentedData> listener);
 	
 	/**
 	 * Asynchronously augment an image and provide location coordinates. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
@@ -97,7 +109,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing an ARData object which contains a focal length and list of image overlays
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void augmentImage(InputStream in, double lat, double lon, double compass, ARListener<ARData> listener);
+	public void augmentImage(InputStream in, double lat, double lon, double compass, ARListener<AugmentedData> listener);
 	
 	/**
 	 * Asynchronously delete the site.
@@ -123,7 +135,7 @@ public interface ARSite {
 	public State processBaseImages();
 	
 	/**
-	 * Synchronously get the state of the site
+	 * This make a sychronous server request to get the state of the site
 	 * @return the state of the site
 	 */
 	public State getState();
@@ -143,7 +155,7 @@ public interface ARSite {
 	 * @return an OverlayResponse containing the id of the new overlya
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public OverlayResponse updateOverlay(String id, OverlayData data);
+	public OverlayResponse updateOverlay(OverlayResponse overlayToUpdate, Overlay newOverlay);
 	
 	/**
 	 * Synchronously delete an overlay. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
@@ -158,7 +170,7 @@ public interface ARSite {
 	 * @return an ARData object containing the focal length and overlays for that augmented image
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public ARData augmentImage(InputStream in);
+	public AugmentedData augmentImage(InputStream in);
 	
 	/**
 	 * Synchronously augment an image and provide coordinates. Throws an ARException if the state is not READY_TO_AUGMENT_IMAGES
@@ -168,12 +180,16 @@ public interface ARSite {
 	 * @return an ARData object specifying the focal length and overlays of the augmented image
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public ARData augmentImage(InputStream in, long lat, long lon);
+	public AugmentedData augmentImage(InputStream in, long lat, long lon);
 	
 	/**
 	 * Synchronously delete the site
 	 */
 	public void delete();
 
+	/**
+	 * Makes a synchronous server request to get the site info
+	 * @return
+	 */
 	public SiteInfo getSiteInfo();
 }

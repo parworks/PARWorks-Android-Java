@@ -1,3 +1,16 @@
+/*
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.parworks.androidlibrary.utils;
 
 import java.io.IOException;
@@ -57,9 +70,9 @@ public class HttpUtils {
 	 * @param url the absolute url or the endpoint
 	 * @return the http response
 	 */
-	public HttpResponse doGet(String apiKey, String salt,
+	public HttpResponse doGet(String apiKey,
 			String signature, String url) {
-		return doGet(apiKey,salt,signature,url, new HashMap<String,String>());
+		return doGet(apiKey,signature,url, new HashMap<String,String>());
 	}
 	/**
 	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
@@ -70,7 +83,7 @@ public class HttpUtils {
 	 * @param queryString 
 	 * @return the http response
 	 */
-	public HttpResponse doGet(String apiKey, String salt,
+	public HttpResponse doGet(String apiKey,
 			String signature, String url, Map<String, String> queryString) {
 		HttpResponse response = null;
 
@@ -80,7 +93,7 @@ public class HttpUtils {
 		HttpGet getRequest = new HttpGet(url);
 
 		getRequest.setHeader("apikey", apiKey);
-		getRequest.setHeader("salt", salt);
+		getRequest.setHeader("salt", ""+System.currentTimeMillis());
 		getRequest.setHeader("signature", signature);
 
 		try {
@@ -105,9 +118,8 @@ public class HttpUtils {
 	 * @return the HTTP response
 	 */
 	
-	public HttpResponse doPost(String apiKey, String salt,
-			String signature, String url, Map<String,String> queryString) {
-		return doPost(apiKey, salt, signature, url,new MultipartEntity(), queryString);
+	public HttpResponse doPost(String apiKey, String signature, String url, Map<String,String> queryString) {
+		return doPost(apiKey, signature, url,new MultipartEntity(), queryString);
 	}
 	/**
 	 * Synchronous HTTP post to the specified url. Set's apikey, salt, and signature as headers.
@@ -119,8 +131,7 @@ public class HttpUtils {
 	 * @param queryString
 	 * @return the http response
 	 */
-	public HttpResponse doPost(String apiKey, String salt,
-			String signature, String url, MultipartEntity entity, Map<String,String> queryString) {
+	public HttpResponse doPost(String apiKey, String signature, String url, MultipartEntity entity, Map<String,String> queryString) {
 			
 			url = appendQueryStringToUrl(url, queryString);		
 			
@@ -130,7 +141,7 @@ public class HttpUtils {
 			
 			
 			postRequest.setHeader("apikey", apiKey);
-			postRequest.setHeader("salt",salt);
+			postRequest.setHeader("salt",""+System.currentTimeMillis());
 			postRequest.setHeader("signature",signature);
 			
 			

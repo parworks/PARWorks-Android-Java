@@ -1,9 +1,16 @@
-/* 
-**
-** Copyright 2012, Jules White
-**
-** 
-*/
+/*
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.parworks.androidlibrary.ar;
 
 import java.util.ArrayList;
@@ -30,7 +37,6 @@ import com.parworks.androidlibrary.utils.HttpUtils;
 public class ARSites {
 	
 	private String mApiKey;
-	private String mSalt;
 	private String mSignature;
 		
 	public ARSites(String username, String password) {
@@ -38,7 +44,6 @@ public class ARSites {
 		//TODO fix this!!! 
 		
 		mApiKey = "parTestUser";
-		mSalt = "foo";
 		mSignature = "6p/ip68gea//V5H+dkvbnPG/RIPjai9tb3DdfbkQMj0=";
 	}
 	
@@ -78,15 +83,7 @@ public class ARSites {
 						BasicResponse addSiteResponse = responseHandler.handleResponse(httpResponseFromExtractor, BasicResponse.class);						
 						
 						if(addSiteResponse.getSuccess() == true ) {
-							SiteInfo siteInfo = new SiteInfo();
-							siteInfo.setId(id);
-							siteInfo.setName(name);
-							siteInfo.setLon(lon);
-							siteInfo.setLat(lat);
-							siteInfo.setDescription(desc);
-							siteInfo.setFeatureType(feature);
-							siteInfo.setChannel(channel);
-							return new ARSiteImpl(siteInfo, mApiKey, mSalt, mSignature);
+							return new ARSiteImpl(id,mApiKey,mSignature);
 							
 						} else {
 							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
@@ -105,7 +102,7 @@ public class ARSites {
 				
 			}
 		};
-		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap, callback);
+		asyncHttpUtils.doGet(mApiKey,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap, callback);
 		
 		
 	}
@@ -137,11 +134,7 @@ public class ARSites {
 						BasicResponse nearbySites = responseHandler.handleResponse(httpResponseFromExtractor, BasicResponse.class);						
 						
 						if(nearbySites.getSuccess() == true ) {
-							SiteInfo siteInfo = new SiteInfo();
-							siteInfo.setId(id);
-							siteInfo.setDescription(desc);
-							siteInfo.setChannel(channel);
-							return new ARSiteImpl(siteInfo, mApiKey, mSalt, mSignature);
+							return new ARSiteImpl(id, mApiKey, mSignature);
 						} else {
 							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
 						}
@@ -159,7 +152,7 @@ public class ARSites {
 				
 			}
 		};
-		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap, callback);
+		asyncHttpUtils.doGet(mApiKey,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap, callback);
 	}
 	
 	/**
@@ -209,7 +202,7 @@ public class ARSites {
 							List<SiteInfo> sitesInfo = nearbySites.getSites();
 							List<ARSite> nearbySitesList = new ArrayList<ARSite>();
 							for(SiteInfo info : sitesInfo) {
-								nearbySitesList.add(new ARSiteImpl(info, mApiKey, mSalt, mSignature));				
+								nearbySitesList.add(new ARSiteImpl(info.getId(), mApiKey,mSignature));				
 							}
 							return nearbySitesList;
 						} else {
@@ -229,7 +222,7 @@ public class ARSites {
 				
 			}
 		};
-		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.NEARBY_SITE_PATH, parameterMap, callback);
+		asyncHttpUtils.doGet(mApiKey,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.NEARBY_SITE_PATH, parameterMap, callback);
 	}
 	
 	/**
@@ -255,7 +248,7 @@ public class ARSites {
 						GetSiteInfoResponse siteInfoResponse = responseHandler.handleResponse(httpResponseFromExtractor, GetSiteInfoResponse.class);						
 						
 						if(siteInfoResponse.getSuccess() == true ) {
-							return new ARSiteImpl(siteInfoResponse.getSite(), mApiKey, mSalt, mSignature);
+							return new ARSiteImpl(siteInfoResponse.getSite().getId(), mApiKey, mSignature);
 						} else {
 							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
 						}
@@ -273,7 +266,7 @@ public class ARSites {
 				
 			}
 		};
-		asyncHttpUtils.doGet(mApiKey,mSalt,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.GET_SITE_INFO_PATH, parameterMap, callback);
+		asyncHttpUtils.doGet(mApiKey,mSignature,HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.GET_SITE_INFO_PATH, parameterMap, callback);
 		
 	}
 	
@@ -292,11 +285,11 @@ public class ARSites {
 	 */
 	public ARSite getExisting(String id){
 		Map<String,String> parameterMap = new HashMap<String,String>();
-		parameterMap.put("id", id);
+		parameterMap.put("site", id);
 		
 		HttpUtils httpUtils = new HttpUtils();
 		HttpResponse serverResponse;
-		serverResponse = httpUtils.doGet(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.GET_SITE_INFO_PATH, parameterMap);
+		serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.GET_SITE_INFO_PATH, parameterMap);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -306,7 +299,7 @@ public class ARSites {
 
 		
 		if(getSiteResponse.getSuccess() == true) {
-			ARSite newSite = new ARSiteImpl(getSiteResponse.getSite(), mApiKey, mSalt, mSignature);
+			ARSite newSite = new ARSiteImpl(getSiteResponse.getSite().getId(), mApiKey,mSignature);
 			return newSite;
 		} else {
 			throw new ARException("Successfully communicated with the server, but failed to get siteinfo. The most likely cause is that a site with the specificed ID does not exist.");
@@ -329,7 +322,7 @@ public class ARSites {
 		
 		HttpUtils httpUtils = new HttpUtils();
 		HttpResponse serverResponse;
-		serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
+		serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -369,7 +362,7 @@ public class ARSites {
 		
 		HttpUtils httpUtils = new HttpUtils();
 		HttpResponse serverResponse;
-		serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
+		serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -418,7 +411,7 @@ public class ARSites {
 		
 		HttpResponse serverResponse;
 		HttpUtils httpUtils = new HttpUtils();
-		serverResponse = httpUtils.doGet(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.NEARBY_SITE_PATH, parameterMap);
+		serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.NEARBY_SITE_PATH, parameterMap);
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
@@ -428,7 +421,7 @@ public class ARSites {
 			List<SiteInfo> sitesInfo = nearbySites.getSites();
 			List<ARSite> nearbySitesList = new ArrayList<ARSite>();
 			for(SiteInfo info : sitesInfo) {
-				nearbySitesList.add(new ARSiteImpl(info, mApiKey, mSalt, mSignature));				
+				nearbySitesList.add(new ARSiteImpl(info.getId(), mApiKey, mSignature));				
 			}
 			return nearbySitesList;
 		} else {
