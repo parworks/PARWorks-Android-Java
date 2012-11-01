@@ -36,7 +36,7 @@ import com.parworks.androidlibrary.utils.HttpUtils;
  */
 public class ARSites {
 	
-	private String mApiKey;
+	private String mApiKey; 
 	private String mSignature;
 		
 	public ARSites(String username, String password) {
