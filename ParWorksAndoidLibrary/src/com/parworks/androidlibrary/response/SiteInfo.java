@@ -31,6 +31,7 @@ public class SiteInfo {
 	private String mFeatureType;
 	private String mS3Bucket;
 	private String mLastModificationTime;
+	private String mOwnerApiKey;
 	
 	public enum BimState {
 		PROCESSING,
@@ -61,6 +62,13 @@ public class SiteInfo {
 		mFeatureType = featureType;
 		mS3Bucket = s3Bucket;
 		mLastModificationTime = lastModificationTime;
+	}
+	
+	public void setOwnerApiKey(String ownerApiKey) {
+		mOwnerApiKey = ownerApiKey;
+	}
+	public String getOwnerApiKey() {
+		return mOwnerApiKey;
 	}
 		
 	public String getName() {

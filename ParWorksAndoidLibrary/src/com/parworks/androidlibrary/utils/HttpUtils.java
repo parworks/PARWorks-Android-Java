@@ -41,7 +41,7 @@ import com.parworks.androidlibrary.ar.ARException;
  */
 public class HttpUtils {
 	
-	public final static String PARWORKS_API_BASE_URL = "http://dev.parworksapi.com"; 
+	public final static String PARWORKS_API_BASE_URL = "https://mars.parworksapi.com"; //"http://dev.parworksapi.com"; 
 
 	
 	public final static String BASE_IMAGE_PROCESSING_STATE_PATH = "/ar/site/process/state";

@@ -17,7 +17,7 @@ import org.apache.http.HttpResponse;
 
 public interface HttpCallback {
 
-	public void onResponse(HttpResponse resp);
+	public void onResponse(HttpResponse serverResponse);
 	public void onError(Exception e);
 	
 }

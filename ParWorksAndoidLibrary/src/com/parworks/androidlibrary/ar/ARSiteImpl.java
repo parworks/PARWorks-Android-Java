@@ -24,10 +24,13 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.os.AsyncTask;
+
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
+import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
@@ -83,7 +86,7 @@ public class ARSiteImpl implements ARSite {
 						if(siteInfoResponse.getSuccess() == true ) {
 							return siteInfoResponse.getSite();
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site no longer exists.");
+							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site was deleted.");
 						}
 					}
 					
@@ -158,7 +161,7 @@ public class ARSiteImpl implements ARSite {
 						if(addBaseImageResponse.getSuccess() == true ) {
 							return new BaseImageInfo(addBaseImageResponse.getId());
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to add the base image. Perhaps the site does not exist, or there was a problem with the image.");
+							throw new ARException("Successfully communicated with the server but failed to add the base image. Perhaps the site was deleted, or there was a problem with the image.");
 						}
 					}
 					
@@ -201,7 +204,7 @@ public class ARSiteImpl implements ARSite {
 						if(processBaseImageResponse.getSuccess() == true ) {
 							return new String(processBaseImageResponse.getJobId());
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to initiate image processing. Perhaps the site does not exist.");
+							throw new ARException("Successfully communicated with the server but failed to initiate image processing. Perhaps the site was deleted.");
 						}
 					}
 					
@@ -240,7 +243,7 @@ public class ARSiteImpl implements ARSite {
 							SiteInfo siteInfo = siteInfoResponse.getSite();
 							return determineSiteState(siteInfo.getBimState(), siteInfo.getSiteState());
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to initiate image processing. Perhaps the site does not exist.");
+							throw new ARException("Successfully communicated with the server but failed to get state. Perhaps the site was deleted.");
 						}
 					}
 					
@@ -286,7 +289,7 @@ public class ARSiteImpl implements ARSite {
 						if(addOverlayResponse.getSuccess() == true ) {
 							return new OverlayResponse(addOverlayResponse.getId());
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site no longer exists.");
+							throw new ARException("Successfully communicated with the server but failed to add overlay.  Perhaps the site was deleted.");
 						}
 					}
 					
@@ -333,7 +336,7 @@ public class ARSiteImpl implements ARSite {
 						if(saveOverlayResponse.getSuccess() == true ) {
 							return new OverlayResponse(saveOverlayResponse.getId());
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site no longer exists.");
+							throw new ARException("Successfully communicated with the server but failed to update overlay.  Perhaps the site was deleted.");
 						}
 					}
 					
@@ -374,7 +377,7 @@ public class ARSiteImpl implements ARSite {
 						if(deletedOverlayResponse.getSuccess() == true ) {
 							return true;
 						} else {
-							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site no longer exists.");
+							throw new ARException("Successfully communicated with the server but failed to delete overlay. Perhaps the site was deleted.");
 						}
 					}
 					
@@ -391,10 +394,82 @@ public class ARSiteImpl implements ARSite {
 		});
 		
 	}
+	
+	
+	private void pollAugmentImageResult(final String imageId) {
+		
+		new AsyncTask<Void, Void, HttpResponse>() {
+
+			@Override
+			protected HttpResponse doInBackground(Void... arg0) {
+				boolean finished = false;
+				while(!finished) {
+					Map<String,String> params = new HashMap<String,String>();
+					params.put("site", mId);
+					params.put("imgId", imageId);
+					
+					HttpUtils httpUtils = new HttpUtils();
+					HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params);
+					
+					HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+					
+					ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+					AugmentImageResultResponse resultResponse = responseHandler.handleResponse(serverResponse, AugmentImageResultResponse.class);
+					
+					
+					
+				}
+				
+				
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(HttpResponse result) {
+				// TODO Auto-generated method stub
+				super.onPostExecute(result);
+			}
+			
+		};
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mId);
+		
+		
+	}
 
 	@Override
-	public void augmentImage(InputStream in, ARListener<AugmentedData> listener) {
+	public void augmentImage(InputStream image, ARListener<AugmentedData> listener) {
 		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
+		
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mId);
+		
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(image,"image");
+		imageEntity.addPart("image", imageInputStreamBody);
+		
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
+		httpUtils.doPost(mApiKey,mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity, new HttpCallback() {
+
+			@Override
+			public void onResponse(HttpResponse serverResponse) {
+				HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+				
+				
+				
+				
+				
+			}
+
+			@Override
+			public void onError(Exception e) {
+				throw new ARException(e);
+				
+			}
+			
+		});
+		
 		
 	}
 
