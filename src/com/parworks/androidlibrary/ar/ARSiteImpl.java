@@ -617,8 +617,15 @@ public class ARSiteImpl implements ARSite {
 	}
 	
 	private State determineSiteState(BimState bimState, SiteState siteState) {
-		
-		return null;
+		if( (siteState == SiteState.PROCESSED)&&(bimState == BimState.NOT_PROCESSED) ) {
+			return State.NEEDS_OVERLAYS;
+		} else if(siteState == SiteState.NOT_PROCESSED){
+			return State.NEEDS_BASE_IMAGE_PROCESSING;
+		} else if ( (siteState == SiteState.PROCESSED)&&(bimState == BimState.PROCESSED) ){
+			return State.READY_TO_AUGMENT_IMAGES;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
