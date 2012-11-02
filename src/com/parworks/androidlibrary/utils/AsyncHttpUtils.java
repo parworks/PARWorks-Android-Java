@@ -24,6 +24,17 @@ import org.apache.http.entity.mime.MultipartEntity;
  *
  */
 public class AsyncHttpUtils {
+	
+	String mTime;
+	String mApiKey;
+	String mSignature;
+	
+	public AsyncHttpUtils(String apiKey, String time, String signature) {
+		mTime = time;
+		mApiKey = apiKey;
+		mSignature = signature;
+	}
+	
 
 	/**
 	 * Does an asynchronous HTTP get
@@ -34,12 +45,12 @@ public class AsyncHttpUtils {
 	 * @param params the parameters that will make up the query string
 	 * @param callback the callback to receive the http response
 	 */
-	public void doGet(String apiKey, String signature,String url, Map<String,String> params, HttpCallback callback) {
+	public void doGet(String url, Map<String,String> params, HttpCallback callback) {
 		url = HttpUtils.appendQueryStringToUrl(url, params);
 		HttpGet get = new HttpGet(url);
-		get.setHeader("apikey", apiKey);
-		get.setHeader("salt",""+System.currentTimeMillis());
-		get.setHeader("signature",signature);
+		get.setHeader("apikey", mApiKey);
+		get.setHeader("salt",mTime);
+		get.setHeader("signature",mSignature);
 		HttpRequestInfo rinfo = new HttpRequestInfo(get, callback);
 		AsyncHttpTask task = new AsyncHttpTask();
 		task.execute(rinfo);
@@ -55,16 +66,16 @@ public class AsyncHttpUtils {
 	 * @param entity a multipart entity. Can be used to sending images to endpoints
 	 * @param callback the callback to receive the http response
 	 */
-	public void doPost(String apiKey, String signature, String url, Map<String, String> params, MultipartEntity entity,
+	public void doPost(String url, Map<String, String> params, MultipartEntity entity,
 			HttpCallback callback) {
 		try {
 
 			url = HttpUtils.appendQueryStringToUrl(url, params);
 			
 			HttpPost post = new HttpPost(url);
-			post.setHeader("apikey", apiKey);
-			post.setHeader("salt",""+System.currentTimeMillis());
-			post.setHeader("signature",signature);
+			post.setHeader("apikey", mApiKey);
+			post.setHeader("salt",mTime);
+			post.setHeader("signature",mSignature);
 			
 			post.setEntity(entity);
 			

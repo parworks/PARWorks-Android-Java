@@ -31,9 +31,11 @@ import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
+import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
+import com.parworks.androidlibrary.response.ListBaseImagesResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BimState;
 import com.parworks.androidlibrary.response.SiteInfo.SiteState;
@@ -46,11 +48,13 @@ public class ARSiteImpl implements ARSite {
 	private String mId;
 	private String mApiKey;
 	private String mSignature;
-		
-	public ARSiteImpl(String siteId, String apiKey, String signature) {
+	private String mTime;	
+	
+	public ARSiteImpl(String siteId, String apiKey, String time, String signature) {
 		mId = siteId;
 		mApiKey = apiKey;
 		mSignature = signature;
+		mTime = time;
 	}
 
 	
@@ -64,6 +68,44 @@ public class ARSiteImpl implements ARSite {
 	 */
 	
 	
+	@Override
+	public void getBaseImages(final ARListener<List<BaseImageInfo>> listener) {
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mId);
+		
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.LIST_BASE_IMAGES_PATH, params, new HttpCallback() {
+
+			@Override
+			public void onResponse(HttpResponse serverResponse) {
+				HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+				PayloadExtractor<List<BaseImageInfo>> extractor = new PayloadExtractor<List<BaseImageInfo>>() {
+
+					@Override
+					public List<BaseImageInfo> extract(HttpResponse callbackResponse) {
+						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+						ListBaseImagesResponse listBaseImagesResponse = responseHandler.handleResponse(callbackResponse, ListBaseImagesResponse.class);
+						if(listBaseImagesResponse.getSuccess() == true ) {
+							return listBaseImagesResponse.getImages();
+						} else {
+							throw new ARException("Successfully communicated with the server but failed to get info.  Perhaps the site was deleted.");
+						}
+					}
+					
+				};
+				ARResponse<List<BaseImageInfo>> infoResponse = ARResponse.from(serverResponse, extractor);
+				listener.handleResponse(infoResponse);
+			}
+
+			@Override
+			public void onError(Exception e) {
+				throw new ARException(e);				
+			}
+			
+		});
+	}
+	
+	
 	
 	@Override
 	public void getSiteInfo(final ARListener<SiteInfo> listener) {
@@ -71,8 +113,8 @@ public class ARSiteImpl implements ARSite {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -134,10 +176,10 @@ public class ARSiteImpl implements ARSite {
 	}
 	
 	@Override
-	public void addBaseImage(String filename, InputStream image, final ARListener<BaseImageInfo> listener) {
+	public void addBaseImage(String filename, InputStream image, final ARListener<BaseImage> listener) {
 		handleStateAsync(mId,State.NEEDS_BASE_IMAGE_PROCESSING,State.NEEDS_BASE_IMAGE_PROCESSING);
 	
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
 		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
@@ -147,26 +189,26 @@ public class ARSiteImpl implements ARSite {
 		InputStreamBody imageInputStreamBody = new InputStreamBody(image,filename);
 		imageEntity.addPart("image", imageInputStreamBody);
 		
-		httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_BASE_IMAGE_PATH, params, imageEntity, new HttpCallback() {
+		httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_BASE_IMAGE_PATH, params, imageEntity, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
 				HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-				PayloadExtractor<BaseImageInfo> extractor = new PayloadExtractor<BaseImageInfo>() {
+				PayloadExtractor<BaseImage> extractor = new PayloadExtractor<BaseImage>() {
 
 					@Override
-					public BaseImageInfo extract(HttpResponse callbackResponse) {
+					public BaseImage extract(HttpResponse callbackResponse) {
 						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 						AddBaseImageResponse addBaseImageResponse = responseHandler.handleResponse(callbackResponse, AddBaseImageResponse.class);
 						if(addBaseImageResponse.getSuccess() == true ) {
-							return new BaseImageInfo(addBaseImageResponse.getId());
+							return new BaseImage(addBaseImageResponse.getId());
 						} else {
 							throw new ARException("Successfully communicated with the server but failed to add the base image. Perhaps the site was deleted, or there was a problem with the image.");
 						}
 					}
 					
 				};
-				ARResponse<BaseImageInfo> addArSiteResponse = ARResponse.from(serverResponse, extractor);
+				ARResponse<BaseImage> addArSiteResponse = ARResponse.from(serverResponse, extractor);
 				listener.handleResponse(addArSiteResponse);
 			}
 
@@ -189,8 +231,8 @@ public class ARSiteImpl implements ARSite {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.INITIATE_BASE_IMAGE_PROCESSING_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.INITIATE_BASE_IMAGE_PROCESSING_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -227,8 +269,8 @@ public class ARSiteImpl implements ARSite {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -274,8 +316,8 @@ public class ARSiteImpl implements ARSite {
 			params.put("v", v.getxCoord()+","+v.getyCoord());
 		}
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_OVERLAY_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_OVERLAY_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -321,8 +363,8 @@ public class ARSiteImpl implements ARSite {
 			params.put("v", v.getxCoord()+","+v.getyCoord());
 		}
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.SAVE_OVERLAY_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.SAVE_OVERLAY_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -362,8 +404,8 @@ public class ARSiteImpl implements ARSite {
 		params.put("site", mId);
 		params.put("id", id);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_OVERLAY_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_OVERLAY_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -408,8 +450,8 @@ public class ARSiteImpl implements ARSite {
 					params.put("site", mId);
 					params.put("imgId", imageId);
 					
-					HttpUtils httpUtils = new HttpUtils();
-					HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params);
+					HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+					HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params);
 					
 					HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 					
@@ -449,8 +491,8 @@ public class ARSiteImpl implements ARSite {
 		InputStreamBody imageInputStreamBody = new InputStreamBody(image,"image");
 		imageEntity.addPart("image", imageInputStreamBody);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doPost(mApiKey,mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -486,8 +528,8 @@ public class ARSiteImpl implements ARSite {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils();
-		httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_SITE_PATH, params, new HttpCallback() {
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_SITE_PATH, params, new HttpCallback() {
 
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
@@ -530,10 +572,10 @@ public class ARSiteImpl implements ARSite {
 	 */
 
 	@Override
-	public BaseImageInfo addBaseImage(String filename, InputStream image) {
+	public BaseImage addBaseImage(String filename, InputStream image) {
 		handleStateSync(mId, State.NEEDS_MORE_BASE_IMAGES, State.NEEDS_BASE_IMAGE_PROCESSING);
 		//make httputils
-		HttpUtils httpUtils = new HttpUtils();
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		
 		//make query string
 		Map<String,String> params = new HashMap<String,String>();
@@ -546,7 +588,7 @@ public class ARSiteImpl implements ARSite {
 		imageEntity.addPart("image", imageInputStreamBody);
 		
 		//do post
-		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_BASE_IMAGE_PATH, imageEntity, params);
+		HttpResponse serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_BASE_IMAGE_PATH, imageEntity, params);
 		
 		//handle status code
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
@@ -557,7 +599,7 @@ public class ARSiteImpl implements ARSite {
 		
 		//return baseimageinfo
 		if(addBaseImageResponse.getSuccess() == true) {
-			return new BaseImageInfo(addBaseImageResponse.getId());
+			return new BaseImage(addBaseImageResponse.getId());
 		} else {
 			throw new ARException("Successfully communicated with the server but failed to add the base image. Perhaps the site does not exist, or there is a problem with the image.");
 		}
@@ -567,12 +609,12 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public State processBaseImages() {
 		handleStateSync(mId, State.NEEDS_BASE_IMAGE_PROCESSING);
-		HttpUtils httpUtils = new HttpUtils();
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 				
-		HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.INITIATE_BASE_IMAGE_PROCESSING_PATH , params);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.INITIATE_BASE_IMAGE_PROCESSING_PATH , params);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -589,14 +631,14 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public State getState() {
 		//make httputils
-		HttpUtils httpUtils = new HttpUtils();
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		
 		//make query string
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 			
 		//do post
-		HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH,params);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH,params);
 		
 		//handle status code
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
@@ -631,7 +673,7 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public OverlayResponse addOverlay(Overlay overlay) {
 		handleStateSync(mId,State.NEEDS_OVERLAYS, State.READY_TO_AUGMENT_IMAGES);
-		HttpUtils httpUtils = new HttpUtils();
+		
 		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
@@ -650,7 +692,8 @@ public class ARSiteImpl implements ARSite {
 			}
 		}
 		
-		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_OVERLAY_PATH, entity, params);
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.ADD_OVERLAY_PATH, entity, params);
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
@@ -685,8 +728,8 @@ public class ARSiteImpl implements ARSite {
 			}
 		}
 		
-		HttpUtils httpUtils = new HttpUtils();
-		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.SAVE_OVERLAY_PATH, entity, params);
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.SAVE_OVERLAY_PATH, entity, params);
 		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		AddSaveOverlayResponse saveOverlayResponse = responseHandler.handleResponse(serverResponse, AddSaveOverlayResponse.class);
@@ -701,13 +744,14 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public void deleteOverlay(String id) {
 		handleStateSync(mId,State.READY_TO_AUGMENT_IMAGES);
-		HttpUtils httpUtils = new HttpUtils();
+		
 		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		params.put("id", id);
 		
-		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_OVERLAY_PATH, params);
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.REMOVE_OVERLAY_PATH, params);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -761,11 +805,12 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void delete() {
-		HttpUtils httpUtils = new HttpUtils();
+		
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		HttpResponse serverResponse = httpUtils.doGet(mApiKey, mSignature, HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.REMOVE_SITE_PATH, params);
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.REMOVE_SITE_PATH, params);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
@@ -785,8 +830,8 @@ public class ARSiteImpl implements ARSite {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("site", mId);
 		
-		HttpUtils httpUtils = new HttpUtils();
-		HttpResponse serverResponse = httpUtils.doGet(mApiKey,mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params);
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params);
 		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		GetSiteInfoResponse getSiteInfoResponse = responseHandler.handleResponse(serverResponse, GetSiteInfoResponse.class);
@@ -798,6 +843,25 @@ public class ARSiteImpl implements ARSite {
 			throw new ARException("Successfully communicated with the server, but was unable to get site info. Perhaps the site no longer exists.");
 		}
 		
+	}
+	
+
+	@Override
+	public List<BaseImageInfo> getBaseImages() {
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("site", mId);
+		
+		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.LIST_BASE_IMAGES_PATH, params);
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		ListBaseImagesResponse baseImagesResponse = responseHandler.handleResponse(serverResponse, ListBaseImagesResponse.class);
+		
+		if(baseImagesResponse.getSuccess() == true) {
+			return baseImagesResponse.getImages();
+		} else {
+			throw new ARException("Successfully communicated with the server, but was unable to get base images. Perhaps the site no longer exists.");
+		}
 	}
 	
 	/**
@@ -816,10 +880,15 @@ public class ARSiteImpl implements ARSite {
 	 */
 	private void handleStateSync(String siteId, final State firstPossibleState, final State secondPossibleState) {
 		State siteState = getState();
-		if( (siteState != firstPossibleState)||(siteState != secondPossibleState) ) {
-			throw new ARException("State must be " + firstPossibleState + " or " + secondPossibleState);
+		if( (siteState == firstPossibleState)||(siteState == secondPossibleState) ) {
+			return;
+		} else {
+			throw new ARException("State was "+ siteState + ". State must be " + firstPossibleState + " or " + secondPossibleState);
 		}
 	}
+
+
+
 
 
 

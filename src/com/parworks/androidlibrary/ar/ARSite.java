@@ -14,7 +14,9 @@
 package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
+import java.util.List;
 
+import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.SiteInfo;
 
 /**
@@ -40,6 +42,11 @@ public interface ARSite {
 	}
 	
 	/**
+	 * Asynchronously get the site's base images
+	 */
+	public void getBaseImages(ARListener<List<BaseImageInfo>> listener);
+	
+	/**
 	 * Makes an asynchronous server request to get site info
 	 * @param listener the callback to be used when the call completes. Will contain a SiteInfo object.
 	 */
@@ -52,7 +59,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes containing a BaseImageInfo object with the id of the new base image.
 	 */
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
-	public void addBaseImage(String filename, InputStream image, ARListener<BaseImageInfo> listener);
+	public void addBaseImage(String filename, InputStream image, ARListener<BaseImage> listener);
 	
 	/**
 	 * Asynchronously begin processing the base images. Throws an ARException if the state is not NEEDS_BASE_IMAGE_PROCESSING
@@ -124,7 +131,7 @@ public interface ARSite {
 	 * @return a BaseImageInfo object containing the id of the new base image
 	 */
 	@RequiredState({State.NEEDS_MORE_BASE_IMAGES,State.NEEDS_BASE_IMAGE_PROCESSING})
-	public BaseImageInfo addBaseImage(String filename, InputStream image);
+	public BaseImage addBaseImage(String filename, InputStream image);
 	
 
 	/**
@@ -192,4 +199,11 @@ public interface ARSite {
 	 * @return
 	 */
 	public SiteInfo getSiteInfo();
+	
+	/**
+	 * Synchronously get the site's base images
+	 * @return
+	 */
+	public List<BaseImageInfo> getBaseImages();
+
 }

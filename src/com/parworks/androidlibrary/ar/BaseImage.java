@@ -18,11 +18,11 @@ package com.parworks.androidlibrary.ar;
  * @author Jules White
  *
  */
-public class BaseImageInfo {
+public class BaseImage {
 
 	private final String baseImageId_;
 
-	public BaseImageInfo(String baseImageId) {
+	public BaseImage(String baseImageId) {
 		super();
 		baseImageId_ = baseImageId;
 	}

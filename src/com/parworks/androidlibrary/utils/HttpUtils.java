@@ -62,6 +62,17 @@ public class HttpUtils {
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
 	
 	
+	String mTime;
+	String mApiKey;
+	String mSignature;
+	
+	public HttpUtils(String apiKey, String time, String signature) {
+		mTime = time;
+		mApiKey = apiKey;
+		mSignature = signature;
+	}
+	
+	
 	/**
 	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
 	 * @param apiKey the user's api key.
@@ -70,9 +81,8 @@ public class HttpUtils {
 	 * @param url the absolute url or the endpoint
 	 * @return the http response
 	 */
-	public HttpResponse doGet(String apiKey,
-			String signature, String url) {
-		return doGet(apiKey,signature,url, new HashMap<String,String>());
+	public HttpResponse doGet(String url) {
+		return doGet(url, new HashMap<String,String>());
 	}
 	/**
 	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
@@ -83,8 +93,7 @@ public class HttpUtils {
 	 * @param queryString 
 	 * @return the http response
 	 */
-	public HttpResponse doGet(String apiKey,
-			String signature, String url, Map<String, String> queryString) {
+	public HttpResponse doGet(String url, Map<String, String> queryString) {
 		HttpResponse response = null;
 
 		url = appendQueryStringToUrl(url, queryString);
@@ -92,9 +101,9 @@ public class HttpUtils {
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet getRequest = new HttpGet(url);
 
-		getRequest.setHeader("apikey", apiKey);
-		getRequest.setHeader("salt", ""+System.currentTimeMillis());
-		getRequest.setHeader("signature", signature);
+		getRequest.setHeader("apikey", mApiKey);
+		getRequest.setHeader("salt", mTime);
+		getRequest.setHeader("signature", mSignature);
 
 		try {
 			response = httpClient.execute(getRequest);
@@ -118,8 +127,8 @@ public class HttpUtils {
 	 * @return the HTTP response
 	 */
 	
-	public HttpResponse doPost(String apiKey, String signature, String url, Map<String,String> queryString) {
-		return doPost(apiKey, signature, url,new MultipartEntity(), queryString);
+	public HttpResponse doPost(String url, Map<String,String> queryString) {
+		return doPost(url,new MultipartEntity(), queryString);
 	}
 	/**
 	 * Synchronous HTTP post to the specified url. Set's apikey, salt, and signature as headers.
@@ -131,7 +140,7 @@ public class HttpUtils {
 	 * @param queryString
 	 * @return the http response
 	 */
-	public HttpResponse doPost(String apiKey, String signature, String url, MultipartEntity entity, Map<String,String> queryString) {
+	public HttpResponse doPost(String url, MultipartEntity entity, Map<String,String> queryString) {
 			
 			url = appendQueryStringToUrl(url, queryString);		
 			
@@ -140,9 +149,9 @@ public class HttpUtils {
 			HttpPost postRequest = new HttpPost(url);
 			
 			
-			postRequest.setHeader("apikey", apiKey);
-			postRequest.setHeader("salt",""+System.currentTimeMillis());
-			postRequest.setHeader("signature",signature);
+			postRequest.setHeader("apikey", mApiKey);
+			postRequest.setHeader("salt",mTime);
+			postRequest.setHeader("signature",mSignature);
 			
 			
 			
