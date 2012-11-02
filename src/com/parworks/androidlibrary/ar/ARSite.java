@@ -42,6 +42,12 @@ public interface ARSite {
 	}
 	
 	/**
+	 * Returns the site id connected with this site. Does not do any networking.
+	 * @return
+	 */
+	public String getSiteId();
+	
+	/**
 	 * Asynchronously get the site's base images
 	 */
 	public void getBaseImages(ARListener<List<BaseImageInfo>> listener);

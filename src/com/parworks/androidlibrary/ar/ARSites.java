@@ -92,7 +92,7 @@ public class ARSites {
 							return new ARSiteImpl(id,mApiKey,mTime,mSignature);
 							
 						} else {
-							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site Id is probably already in use.");
+							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site Id "+id+"is probably already in use.");
 						}
 					}
 					
@@ -142,7 +142,7 @@ public class ARSites {
 						if(nearbySites.getSuccess() == true ) {
 							return new ARSiteImpl(id, mApiKey,mTime,mSignature);
 						} else {
-							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site Id is probably already in use.");
+							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site "+id+" is probably already in use.");
 						}
 					}
 					

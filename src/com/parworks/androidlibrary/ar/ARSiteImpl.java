@@ -24,7 +24,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
-import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
@@ -167,8 +166,10 @@ public class ARSiteImpl implements ARSite {
 			@Override
 			public void handleResponse(ARResponse<State> resp) {
 				State siteState = resp.getPayload();
-				if( (siteState != firstPossibleState)||(siteState != secondPossibleState) ) {
-					throw new ARException("State must be " + firstPossibleState + " or " + secondPossibleState);
+				if( (siteState == firstPossibleState)||(siteState == secondPossibleState) ) {
+					return;
+				} else {
+					throw new ARException("State is "+siteState+". State must be " + firstPossibleState + " or " + secondPossibleState);
 				}
 				
 			}
@@ -178,7 +179,7 @@ public class ARSiteImpl implements ARSite {
 	
 	@Override
 	public void addBaseImage(String filename, InputStream image, final ARListener<BaseImage> listener) {
-		handleStateAsync(mId,State.NEEDS_BASE_IMAGE_PROCESSING,State.NEEDS_BASE_IMAGE_PROCESSING);
+		handleStateAsync(mId,State.NEEDS_BASE_IMAGE_PROCESSING,State.NEEDS_MORE_BASE_IMAGES);
 	
 		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
 		
@@ -667,7 +668,7 @@ public class ARSiteImpl implements ARSite {
 		} else if ( (siteState == SiteState.PROCESSED)&&(bimState == BimState.PROCESSED) ){
 			return State.READY_TO_AUGMENT_IMAGES;
 		} else {
-			return null;
+			return State.NEEDS_BASE_IMAGE_PROCESSING;
 		}
 	}
 
@@ -845,7 +846,7 @@ public class ARSiteImpl implements ARSite {
 			SiteInfo siteInfo = getSiteInfoResponse.getSite();
 			return siteInfo;
 		} else {
-			throw new ARException("Successfully communicated with the server, but was unable to get site info. Perhaps the site no longer exists.");
+			throw new ARException("Successfully communicated with the server, but was unable to get site info. Perhaps the site no longer exists. The id was: "+mId);
 		}
 		
 	}
@@ -892,6 +893,13 @@ public class ARSiteImpl implements ARSite {
 		} else {
 			throw new ARException("State was "+ siteState + ". State must be " + firstPossibleState + " or " + secondPossibleState);
 		}
+	}
+
+
+
+	@Override
+	public String getSiteId() {
+		return mId;
 	}
 
 
