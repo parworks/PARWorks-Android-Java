@@ -18,6 +18,11 @@ public class Vertex {
 	private int xCoord;
 	private int yCoord;
 	
+	public Vertex(int x, int y) {
+		xCoord = x;
+		yCoord = y;
+	}
+	
 	public int getxCoord() {
 		return xCoord;
 	}

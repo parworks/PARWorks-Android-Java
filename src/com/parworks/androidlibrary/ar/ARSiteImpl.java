@@ -24,6 +24,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
@@ -225,7 +226,7 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void processBaseImages(final ARListener<String> listener) {
+	public void processBaseImages(final ARListener<State> listener) {
 		handleStateAsync(mId,State.NEEDS_BASE_IMAGE_PROCESSING);
 		
 		Map<String,String> params = new HashMap<String,String>();
@@ -237,21 +238,21 @@ public class ARSiteImpl implements ARSite {
 			@Override
 			public void onResponse(HttpResponse serverResponse) {
 				HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-				PayloadExtractor<String> extractor = new PayloadExtractor<String>() {
+				PayloadExtractor<State> extractor = new PayloadExtractor<State>() {
 
 					@Override
-					public String extract(HttpResponse callbackResponse) {
+					public State extract(HttpResponse callbackResponse) {
 						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 						InitiateBaseImageProcessingResponse processBaseImageResponse = responseHandler.handleResponse(callbackResponse, InitiateBaseImageProcessingResponse.class);
 						if(processBaseImageResponse.getSuccess() == true ) {
-							return new String(processBaseImageResponse.getJobId());
+							return State.NEEDS_OVERLAYS;
 						} else {
 							throw new ARException("Successfully communicated with the server but failed to initiate image processing. Perhaps the site was deleted.");
 						}
 					}
 					
 				};
-				ARResponse<String> processImagesResponse = ARResponse.from(serverResponse, extractor);
+				ARResponse<State> processImagesResponse = ARResponse.from(serverResponse, extractor);
 				listener.handleResponse(processImagesResponse);
 			}
 
@@ -731,6 +732,8 @@ public class ARSiteImpl implements ARSite {
 		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		HttpResponse serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.SAVE_OVERLAY_PATH, entity, params);
 		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		AddSaveOverlayResponse saveOverlayResponse = responseHandler.handleResponse(serverResponse, AddSaveOverlayResponse.class);
 		
@@ -833,6 +836,8 @@ public class ARSiteImpl implements ARSite {
 		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH, params);
 		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		GetSiteInfoResponse getSiteInfoResponse = responseHandler.handleResponse(serverResponse, GetSiteInfoResponse.class);
 		
@@ -853,6 +858,8 @@ public class ARSiteImpl implements ARSite {
 		
 		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.LIST_BASE_IMAGES_PATH, params);
+		
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
 		
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		ListBaseImagesResponse baseImagesResponse = responseHandler.handleResponse(serverResponse, ListBaseImagesResponse.class);

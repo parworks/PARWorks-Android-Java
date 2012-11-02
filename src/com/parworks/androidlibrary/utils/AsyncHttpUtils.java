@@ -18,6 +18,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 
+import com.parworks.androidlibrary.ar.ARException;
+
 /**
  * Class for doing Asynchronous HTTP methods
  * @author Adam Hickey
@@ -85,7 +87,7 @@ public class AsyncHttpUtils {
 			AsyncHttpTask task = new AsyncHttpTask();
 			task.execute(rinfo);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new ARException(e);
 		}
 	}
 }

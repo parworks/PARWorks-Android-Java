@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 
+import android.util.Log;
+
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.BasicResponse;
@@ -90,7 +92,7 @@ public class ARSites {
 							return new ARSiteImpl(id,mApiKey,mTime,mSignature);
 							
 						} else {
-							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site Id is probably already in use.");
 						}
 					}
 					
@@ -140,7 +142,7 @@ public class ARSites {
 						if(nearbySites.getSuccess() == true ) {
 							return new ARSiteImpl(id, mApiKey,mTime,mSignature);
 						} else {
-							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+							throw new ARException("Successfully communicated with the server, but couldn't create the site. The site Id is probably already in use.");
 						}
 					}
 					
@@ -210,7 +212,7 @@ public class ARSites {
 							}
 							return nearbySitesList;
 						} else {
-							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in finding nearby sites.");
 						}
 					}
 					
@@ -254,7 +256,7 @@ public class ARSites {
 						if(siteInfoResponse.getSuccess() == true ) {
 							return new ARSiteImpl(siteInfoResponse.getSite().getId(), mApiKey,mTime,mSignature);
 						} else {
-							throw new ARException("Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+							throw new ARException("Successfully communicated with the server, but the server couldn't get a site. Maybe it doesn't exist.");
 						}
 					}
 					
@@ -338,7 +340,7 @@ public class ARSites {
 		if(addSiteResponse.getSuccess() == true) {
 			ARSite newSite = getExisting(id);
 			return newSite;
-		} else {
+		} else{
 			throw new ARException("Successfully communicated with the server, but failed to create a new site. The site id could already be in use, or a problem occurred.");
 		}
 	}

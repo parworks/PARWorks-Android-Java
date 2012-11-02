@@ -66,7 +66,7 @@ public interface ARSite {
 	 * @param listener the callback to be used when the call completes providing the state of the site
 	 */
 	@RequiredState({State.NEEDS_BASE_IMAGE_PROCESSING})
-	public void processBaseImages(ARListener<String> listener);
+	public void processBaseImages(ARListener<State> listener);
 	
 	/**
 	 * Makes an asynchronous server request to get the current state of the ARSite
