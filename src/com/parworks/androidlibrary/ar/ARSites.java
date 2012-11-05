@@ -326,23 +326,7 @@ public class ARSites {
 		parameterMap.put("description",desc);
 		parameterMap.put("channel",channel);
 		
-		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
-		HttpResponse serverResponse;
-		serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
-		
-		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-		
-		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-		BasicResponse addSiteResponse = responseHandler.handleResponse(serverResponse, BasicResponse.class);
-		
-
-		
-		if(addSiteResponse.getSuccess() == true) {
-			ARSite newSite = getExisting(id);
-			return newSite;
-		} else{
-			throw new ARException("Successfully communicated with the server, but failed to create a new site. The site id could already be in use, or a problem occurred.");
-		}
+		return create(id, parameterMap);
 	}
 	
 	/**
@@ -366,8 +350,13 @@ public class ARSites {
 		parameterMap.put("feature", feature);
 		parameterMap.put("channel",channel);
 		
+		return create(id, parameterMap);		
+	}
+	
+	private ARSite create(String id, Map<String,String> parameterMap) {
 		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
 		HttpResponse serverResponse;
+		parameterMap.put("id", id);
 		serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.ADD_SITE_PATH, parameterMap);
 		
 		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
@@ -376,15 +365,11 @@ public class ARSites {
 		BasicResponse addSiteResponse = responseHandler.handleResponse(serverResponse, BasicResponse.class);
 		
 
-		
 		if(addSiteResponse.getSuccess() == true) {
-			ARSite newSite = getExisting(id);
-			return newSite;
-		} else {
+			return new ARSiteImpl(id, mApiKey, mTime, mSignature);
+		} else{
 			throw new ARException("Successfully communicated with the server, but failed to create a new site. The site id could already be in use, or a problem occurred.");
 		}
-
-		
 	}
 	
 	/**

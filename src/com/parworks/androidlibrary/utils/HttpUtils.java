@@ -94,7 +94,7 @@ public class HttpUtils {
 	 * @return the http response
 	 */
 	public HttpResponse doGet(String url, Map<String, String> queryString) {
-		HttpResponse response = null;
+		
 
 		url = appendQueryStringToUrl(url, queryString);
 
@@ -105,6 +105,7 @@ public class HttpUtils {
 		getRequest.setHeader("salt", mTime);
 		getRequest.setHeader("signature", mSignature);
 
+		HttpResponse response = null;
 		try {
 			response = httpClient.execute(getRequest);
 		} catch (ClientProtocolException e) {

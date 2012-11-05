@@ -21,7 +21,8 @@ package com.parworks.androidlibrary.response;
 public class GetSiteInfoResponse {
 	
 	private SiteInfo site;
-	boolean success;
+	private boolean success;
+	private int totalImages;
 	
 	public void setSite(SiteInfo mySite) {
 		site = mySite;
@@ -34,6 +35,12 @@ public class GetSiteInfoResponse {
 	}
 	public SiteInfo getSite() {
 		return site;
+	}
+	public int getTotalImages() {
+		return totalImages;
+	}
+	public void setTotalImages(int totalImages) {
+		this.totalImages = totalImages;
 	}
 
 

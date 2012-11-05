@@ -24,22 +24,23 @@ public class SiteInfo {
 	private String mChannel;
 	private String mDescription;
 	private String mGeoHash;
-	private SiteState mSiteState;
+	private BaseImageState mSiteState;
 	private double mLatitude;
 	private double mLongitude;
-	private BimState mBimState;
+	private OverlayState mBimState;
 	private String mFeatureType;
 	private String mS3Bucket;
 	private String mLastModificationTime;
 	private String mOwnerApiKey;
+	private int mTotalImages;
 	
-	public enum BimState {
+	public enum OverlayState {
 		PROCESSING,
 		PROCESSED,
 		PROCESSING_FAILED,
 		NOT_PROCESSED
 	}
-	public enum SiteState {
+	public enum BaseImageState {
 		PROCESSING,
 		PROCESSED,
 		PROCESSING_FAILED,
@@ -48,8 +49,8 @@ public class SiteInfo {
 	
 	public SiteInfo() {}
 	
-	public SiteInfo(String name, String id, String channel, String description, String geoHash, SiteState siteState,
-			double lat, double lon, BimState bimState, String featureType, String s3Bucket, String lastModificationTime) {
+	public SiteInfo(String name, String id, String channel, String description, String geoHash, BaseImageState siteState,
+			double lat, double lon, OverlayState bimState, String featureType, String s3Bucket, String lastModificationTime) {
 		mName = name;
 		mId = id;
 		mChannel = channel;
@@ -101,10 +102,10 @@ public class SiteInfo {
 	public void setGeoHash(String geoHash) {
 		this.mGeoHash = geoHash;
 	}
-	public SiteState getSiteState() {
+	public BaseImageState getSiteState() {
 		return mSiteState;
 	}
-	public void setSiteState(SiteState siteState) {
+	public void setSiteState(BaseImageState siteState) {
 		this.mSiteState = siteState;
 	}
 	public double getLat() {
@@ -119,10 +120,10 @@ public class SiteInfo {
 	public void setLon(double lon) {
 		this.mLongitude = lon;
 	}
-	public BimState getBimState() {
+	public OverlayState getBimState() {
 		return mBimState;
 	}
-	public void setBimState(BimState bimState) {
+	public void setBimState(OverlayState bimState) {
 		this.mBimState = bimState;
 	}
 	public String getFeatureType() {
@@ -142,6 +143,14 @@ public class SiteInfo {
 	}
 	public void setLastModificationTime(String lastModificationTime) {
 		this.mLastModificationTime = lastModificationTime;
+	}
+
+	public int getTotalImages() {
+		return mTotalImages;
+	}
+
+	public void setTotalImages(int totalImages) {
+		this.mTotalImages = totalImages;
 	}
 
 }

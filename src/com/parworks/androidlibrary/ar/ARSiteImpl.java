@@ -37,18 +37,20 @@ import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
 import com.parworks.androidlibrary.response.ListBaseImagesResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
-import com.parworks.androidlibrary.response.SiteInfo.BimState;
-import com.parworks.androidlibrary.response.SiteInfo.SiteState;
+import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
+import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
 import com.parworks.androidlibrary.utils.AsyncHttpUtils;
 import com.parworks.androidlibrary.utils.HttpCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
 	
-	private String mId;
-	private String mApiKey;
-	private String mSignature;
-	private String mTime;	
+	private final String mId;
+	private final String mApiKey;
+	private final String mSignature;
+	private final String mTime;	
+	
+	private static final int REQUIRED_NUMBER_OF_BASE_IMAGES = 1;
 	
 	public ARSiteImpl(String siteId, String apiKey, String time, String signature) {
 		mId = siteId;
@@ -246,7 +248,7 @@ public class ARSiteImpl implements ARSite {
 						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 						InitiateBaseImageProcessingResponse processBaseImageResponse = responseHandler.handleResponse(callbackResponse, InitiateBaseImageProcessingResponse.class);
 						if(processBaseImageResponse.getSuccess() == true ) {
-							return State.NEEDS_OVERLAYS;
+							return State.PROCESSING;
 						} else {
 							throw new ARException("Successfully communicated with the server but failed to initiate image processing. Perhaps the site was deleted.");
 						}
@@ -285,7 +287,7 @@ public class ARSiteImpl implements ARSite {
 						GetSiteInfoResponse siteInfoResponse = responseHandler.handleResponse(callbackResponse, GetSiteInfoResponse.class);
 						if(siteInfoResponse.getSuccess() == true ) {
 							SiteInfo siteInfo = siteInfoResponse.getSite();
-							return determineSiteState(siteInfo.getBimState(), siteInfo.getSiteState());
+							return determineSiteState(siteInfo.getBimState(), siteInfo.getSiteState(),siteInfoResponse.getTotalImages());
 						} else {
 							throw new ARException("Successfully communicated with the server but failed to get state. Perhaps the site was deleted.");
 						}
@@ -484,35 +486,8 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void augmentImage(InputStream image, ARListener<AugmentedData> listener) {
-		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
-		
-		Map<String,String> params = new HashMap<String,String>();
-		params.put("site", mId);
-		
-		MultipartEntity imageEntity = new MultipartEntity();
-		InputStreamBody imageInputStreamBody = new InputStreamBody(image,"image");
-		imageEntity.addPart("image", imageInputStreamBody);
-		
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey,mTime,mSignature);
-		httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity, new HttpCallback() {
 
-			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-				
-				
-				
-				
-				
-			}
-
-			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
-				
-			}
-			
-		});
+		//TODO implement augmentImage
 		
 		
 	}
@@ -520,7 +495,8 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public void augmentImage(InputStream in, double lat, double lon,
 			double compass, ARListener<AugmentedData> listener) {
-		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
+		
+		//TODO implement augmentImage
 		
 		
 	}
@@ -632,43 +608,37 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public State getState() {
-		//make httputils
-		HttpUtils httpUtils = new HttpUtils(mApiKey,mTime,mSignature);
-		
-		//make query string
-		Map<String,String> params = new HashMap<String,String>();
-		params.put("site", mId);
-			
-		//do post
-		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.GET_SITE_INFO_PATH,params);
-		
-		//handle status code
-		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-		
-		//parse response
-		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-		GetSiteInfoResponse siteInfoResponse = responseHandler.handleResponse(serverResponse, GetSiteInfoResponse.class);
-		
-		//return state
-		if(siteInfoResponse.getSuccess() == true) {
-			SiteInfo siteInfo = siteInfoResponse.getSite();
-			return determineSiteState(siteInfo.getBimState(),siteInfo.getSiteState());			
-			
-		} else {
-			throw new ARException("Successfully communicated with the server but failed to get site info. Perhaps the site no longer exists.");
-		}
+				
+		SiteInfo siteInfo = getSiteInfo();
+		return determineSiteState(siteInfo.getBimState(),siteInfo.getSiteState(),siteInfo.getTotalImages());
 		
 	}
 	
-	private State determineSiteState(BimState bimState, SiteState siteState) {
-		if( (siteState == SiteState.PROCESSED)&&(bimState == BimState.NOT_PROCESSED) ) {
+	public static State determineSiteState(OverlayState bimState, BaseImageState siteState, int baseImageTotal) {
+		OverlayState overlayState = bimState;
+		BaseImageState baseImageState = siteState;
+		if( (overlayState == OverlayState.NOT_PROCESSED) && (baseImageState == BaseImageState.NOT_PROCESSED)) {
+			if(baseImageTotal >= REQUIRED_NUMBER_OF_BASE_IMAGES) {
+				return State.NEEDS_BASE_IMAGE_PROCESSING;
+			} else {
+				return State.NEEDS_MORE_BASE_IMAGES;
+			}
+		} else if( (baseImageState == BaseImageState.PROCESSED) && (overlayState == OverlayState.NOT_PROCESSED) ) {
 			return State.NEEDS_OVERLAYS;
-		} else if(siteState == SiteState.NOT_PROCESSED){
-			return State.NEEDS_BASE_IMAGE_PROCESSING;
-		} else if ( (siteState == SiteState.PROCESSED)&&(bimState == BimState.PROCESSED) ){
+		} else if ( (baseImageState == BaseImageState.PROCESSED) && (overlayState == OverlayState.PROCESSED) ) {
 			return State.READY_TO_AUGMENT_IMAGES;
+		} else if ( (baseImageState == BaseImageState.PROCESSING)||(overlayState == OverlayState.PROCESSING) ){
+			return State.PROCESSING;
+		} else if ( (baseImageState == BaseImageState.PROCESSING_FAILED) ) {
+			if(baseImageTotal >= REQUIRED_NUMBER_OF_BASE_IMAGES) {
+				return State.NEEDS_BASE_IMAGE_PROCESSING;
+			} else {
+				return State.NEEDS_MORE_BASE_IMAGES;
+			}
+		} else if (overlayState == OverlayState.PROCESSING_FAILED) {
+			return State.NEEDS_OVERLAYS;
 		} else {
-			return State.NEEDS_BASE_IMAGE_PROCESSING;
+			throw new ARException("An error occured. The site is in an undefined state.");
 		}
 	}
 
@@ -772,27 +742,8 @@ public class ARSiteImpl implements ARSite {
 	public AugmentedData augmentImage(InputStream in) {
 		handleStateSync(mId,State.READY_TO_AUGMENT_IMAGES);
 		return null;
-//		HttpUtils httpUtils = new HttpUtils();
-//		
-//		Map<String,String> params = new HashMap<String,String>();
-//		params.put("site", mSiteInfo.getId());
-//		
-//		MultipartEntity imageEntity = new MultipartEntity();
-//		InputStreamBody imageInputStreamBody = new InputStreamBody(in,"image");
-//		imageEntity.addPart("image", imageInputStreamBody);
-//		
-//		HttpResponse serverResponse = httpUtils.doPost(mApiKey, mSalt, mSignature, HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_PATH, imageEntity, params);
-//		
-//		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
-//		
-//		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-//		AugmentImageResponse augmentImageResponse = responseHandler.handleResponse(serverResponse, AugmentImageResponse.class);
-//		
-//		if(augmentImageResponse.getSuccess() == false) {
-//			throw new ARException("Successfully communicated with the server but failed to augment the image.");
-//		}
-//		
-//		String imgId = augmentImageResponse.getImgId();
+
+		//TODO implement augment image sync
 		
 		
 		
@@ -801,10 +752,8 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public AugmentedData augmentImage(InputStream in, long lat, long lon) {
-		
-		handleStateSync(mId,State.READY_TO_AUGMENT_IMAGES);
-		
 		return null;
+		//TODO implement augment image sync
 	}
 
 	@Override
@@ -844,6 +793,7 @@ public class ARSiteImpl implements ARSite {
 		
 		if(getSiteInfoResponse.getSuccess() == true) {
 			SiteInfo siteInfo = getSiteInfoResponse.getSite();
+			siteInfo.setTotalImages(getSiteInfoResponse.getTotalImages());
 			return siteInfo;
 		} else {
 			throw new ARException("Successfully communicated with the server, but was unable to get site info. Perhaps the site no longer exists. The id was: "+mId);
