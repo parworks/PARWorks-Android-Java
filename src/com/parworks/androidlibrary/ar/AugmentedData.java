@@ -14,15 +14,62 @@
 package com.parworks.androidlibrary.ar;
 
 import java.util.List;
-/**
- * Returned after augmenting an image. Contains overlay information for a particular augmented image.
- * @author Jules White
- *
- */
-public interface AugmentedData {
 
-	public float getCameraFocalLength();
-	
-	public List<Overlay> getOverlays();
-	
+import com.parworks.androidlibrary.response.OverlayAugmentResponse;
+
+/**
+ * Returned after augmenting an image. Contains overlay information for a
+ * particular augmented image.
+ * 
+ * @author Jules White
+ * 
+ */
+public class AugmentedData {
+
+	private String fov;
+	private String focalLength;
+	private String score;
+	private List<OverlayAugmentResponse> overlays;
+	private boolean localization;
+
+	public String getFov() {
+		return fov;
+	}
+
+	public void setFov(String fov) {
+		this.fov = fov;
+	}
+
+	public String getFocalLength() {
+		return focalLength;
+	}
+
+	public void setFocalLength(String focalLength) {
+		this.focalLength = focalLength;
+	}
+
+	public String getScore() {
+		return score;
+	}
+
+	public void setScore(String score) {
+		this.score = score;
+	}
+
+	public List<OverlayAugmentResponse> getOverlays() {
+		return overlays;
+	}
+
+	public void setOverlays(List<OverlayAugmentResponse> overlays) {
+		this.overlays = overlays;
+	}
+
+	public boolean isLocalization() {
+		return localization;
+	}
+
+	public void setLocalization(boolean localization) {
+		this.localization = localization;
+	}
+
 }
