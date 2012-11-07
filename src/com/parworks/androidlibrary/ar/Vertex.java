@@ -14,28 +14,29 @@
 package com.parworks.androidlibrary.ar;
 
 public class Vertex {
-	
-	private int xCoord;
-	private int yCoord;
-	
-	public Vertex(int x, int y) {
+
+	private float xCoord;
+	private float yCoord;
+
+	public Vertex(float x, float y) {
 		xCoord = x;
 		yCoord = y;
 	}
-	
-	public int getxCoord() {
+
+	public float getxCoord() {
 		return xCoord;
 	}
+
 	public void setxCoord(int xCoord) {
 		this.xCoord = xCoord;
 	}
-	public int getyCoord() {
+
+	public float getyCoord() {
 		return yCoord;
 	}
+
 	public void setyCoord(int yCoord) {
 		this.yCoord = yCoord;
 	}
-	
-	
 
 }

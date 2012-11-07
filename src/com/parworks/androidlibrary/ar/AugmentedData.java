@@ -15,8 +15,6 @@ package com.parworks.androidlibrary.ar;
 
 import java.util.List;
 
-import com.parworks.androidlibrary.response.OverlayAugmentResponse;
-
 /**
  * Returned after augmenting an image. Contains overlay information for a
  * particular augmented image.
@@ -26,50 +24,59 @@ import com.parworks.androidlibrary.response.OverlayAugmentResponse;
  */
 public class AugmentedData {
 
-	private String fov;
-	private String focalLength;
-	private String score;
-	private List<OverlayAugmentResponse> overlays;
-	private boolean localization;
+	private String mFov;
+	private String mFocalLength;
+	private String mScore;
+	private List<Overlay> mOverlays;
+	private boolean mLocalization;
+
+	public AugmentedData(String fov, String focalLength, String score,
+			boolean localization, List<Overlay> overlays) {
+		mFov = fov;
+		mFocalLength = focalLength;
+		mScore = score;
+		mLocalization = localization;
+		mOverlays = overlays;
+	}
 
 	public String getFov() {
-		return fov;
+		return mFov;
 	}
 
 	public void setFov(String fov) {
-		this.fov = fov;
+		this.mFov = fov;
 	}
 
 	public String getFocalLength() {
-		return focalLength;
+		return mFocalLength;
 	}
 
 	public void setFocalLength(String focalLength) {
-		this.focalLength = focalLength;
+		this.mFocalLength = focalLength;
 	}
 
 	public String getScore() {
-		return score;
+		return mScore;
 	}
 
 	public void setScore(String score) {
-		this.score = score;
+		this.mScore = score;
 	}
 
-	public List<OverlayAugmentResponse> getOverlays() {
-		return overlays;
+	public List<Overlay> getOverlays() {
+		return mOverlays;
 	}
 
-	public void setOverlays(List<OverlayAugmentResponse> overlays) {
-		this.overlays = overlays;
+	public void setOverlays(List<Overlay> overlays) {
+		this.mOverlays = overlays;
 	}
 
 	public boolean isLocalization() {
-		return localization;
+		return mLocalization;
 	}
 
 	public void setLocalization(boolean localization) {
-		this.localization = localization;
+		this.mLocalization = localization;
 	}
 
 }

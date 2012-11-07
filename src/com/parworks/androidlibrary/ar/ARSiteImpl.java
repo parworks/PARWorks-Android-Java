@@ -15,6 +15,7 @@ package com.parworks.androidlibrary.ar;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +30,13 @@ import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
 import com.parworks.androidlibrary.response.AugmentImageResponse;
+import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
 import com.parworks.androidlibrary.response.ListBaseImagesResponse;
+import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
@@ -513,7 +516,7 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void getAugmentedImage(String imageId,
+	public void getAugmentedImage(final String imageId,
 			final ARListener<AugmentedData> listener) {
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -536,10 +539,12 @@ public class ARSiteImpl implements ARSite {
 							public AugmentedData extract(
 									HttpResponse callbackResponse) {
 								ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-								AugmentedData augmentResult = responseHandler
-										.handleResponse(callbackResponse,
-												AugmentedData.class);
-								return augmentResult;
+								AugmentImageResultResponse augmentResult = responseHandler
+										.handleResponse(
+												callbackResponse,
+												AugmentImageResultResponse.class);
+								return convertAugmentResultResponse(imageId,
+										augmentResult);
 
 							}
 
@@ -949,10 +954,10 @@ public class ARSiteImpl implements ARSite {
 		}
 
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-		AugmentedData augmentResult = responseHandler.handleResponse(
-				serverResponse, AugmentedData.class);
+		AugmentImageResultResponse result = responseHandler.handleResponse(
+				serverResponse, AugmentImageResultResponse.class);
 
-		return augmentResult;
+		return convertAugmentResultResponse(imgId, result);
 	}
 
 	@Override
@@ -1075,6 +1080,42 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public String getSiteId() {
 		return mId;
+	}
+
+	private AugmentedData convertAugmentResultResponse(String imgId,
+			AugmentImageResultResponse result) {
+		List<OverlayAugmentResponse> overlayResponses = result.getOverlays();
+		List<Overlay> overlays = new ArrayList<Overlay>();
+
+		for (OverlayAugmentResponse overlayResponse : overlayResponses) {
+			overlays.add(makeOverlay(overlayResponse, imgId));
+		}
+
+		AugmentedData augmentedData = new AugmentedData(result.getFov(),
+				result.getFocalLength(), result.getScore(),
+				result.isLocalization(), overlays);
+		return augmentedData;
+	}
+
+	private Overlay makeOverlay(OverlayAugmentResponse overlayResponse,
+			String imgId) {
+		Overlay overlay = new OverlayImpl(imgId, overlayResponse.getName(),
+				overlayResponse.getDescription(),
+				parseVertices(overlayResponse.getVertices()));
+		return overlay;
+
+	}
+
+	private List<Vertex> parseVertices(String serverOutput) {
+		String[] points = serverOutput.split(",");
+
+		List<Vertex> vertices = new ArrayList<Vertex>();
+		for (int i = 0; i < points.length; i += 3) {
+			float xCoord = Float.parseFloat(points[0]);
+			float yCoord = Float.parseFloat(points[1]);
+			vertices.add(new Vertex(xCoord, yCoord));
+		}
+		return vertices;
 	}
 
 }
