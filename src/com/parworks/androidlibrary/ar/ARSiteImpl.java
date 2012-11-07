@@ -24,14 +24,11 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
-import android.os.AsyncTask;
-
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
 import com.parworks.androidlibrary.response.AugmentImageResponse;
-import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
@@ -515,62 +512,110 @@ public class ARSiteImpl implements ARSite {
 
 	}
 
-	private void pollAugmentImageResult(final String imageId) {
+	@Override
+	public void getAugmentedImage(String imageId,
+			final ARListener<AugmentedData> listener) {
 
-		new AsyncTask<Void, Void, HttpResponse>() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+		params.put("imgId", imageId);
 
-			@Override
-			protected HttpResponse doInBackground(Void... arg0) {
-				boolean finished = false;
-				while (!finished) {
-					Map<String, String> params = new HashMap<String, String>();
-					params.put("site", mId);
-					params.put("imgId", imageId);
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
+				mSignature);
+		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params,
+				new HttpCallback() {
 
-					HttpUtils httpUtils = new HttpUtils(mApiKey, mTime,
-							mSignature);
-					HttpResponse serverResponse = httpUtils.doGet(
-							HttpUtils.PARWORKS_API_BASE_URL
-									+ HttpUtils.AUGMENT_IMAGE_RESULT_PATH,
-							params);
+					@Override
+					public void onResponse(HttpResponse serverResponse) {
+						HttpUtils.handleStatusCode(serverResponse
+								.getStatusLine().getStatusCode());
+						PayloadExtractor<AugmentedData> extractor = new PayloadExtractor<AugmentedData>() {
 
-					HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-							.getStatusCode());
+							@Override
+							public AugmentedData extract(
+									HttpResponse callbackResponse) {
+								ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+								AugmentedData augmentResult = responseHandler
+										.handleResponse(callbackResponse,
+												AugmentedData.class);
+								return augmentResult;
 
-					ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-					AugmentImageResultResponse resultResponse = responseHandler
-							.handleResponse(serverResponse,
-									AugmentImageResultResponse.class);
+							}
 
-				}
+						};
+						ARResponse<AugmentedData> infoResponse = ARResponse
+								.from(serverResponse, extractor);
+						listener.handleResponse(infoResponse);
+					}
 
-				// TODO Auto-generated method stub
-				return null;
-			}
+					@Override
+					public void onError(Exception e) {
+						throw new ARException(e);
+					}
 
-			@Override
-			protected void onPostExecute(HttpResponse result) {
-				// TODO Auto-generated method stub
-				super.onPostExecute(result);
-			}
+				});
 
-		};
+	}
+
+	@Override
+	public void startImageAugment(InputStream image,
+			final ARListener<String> listener) {
+		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
+
+		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
+				mSignature);
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
 
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(image,
+				"image");
+		imageEntity.addPart("image", imageInputStreamBody);
+
+		httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity,
+				new HttpCallback() {
+
+					@Override
+					public void onResponse(HttpResponse serverResponse) {
+						HttpUtils.handleStatusCode(serverResponse
+								.getStatusLine().getStatusCode());
+						PayloadExtractor<String> extractor = new PayloadExtractor<String>() {
+
+							@Override
+							public String extract(HttpResponse callbackResponse) {
+								ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+								AugmentImageResponse augmentImageResponse = responseHandler
+										.handleResponse(callbackResponse,
+												AugmentImageResponse.class);
+								if (augmentImageResponse.getSuccess() == true) {
+									return augmentImageResponse.getImgId();
+								} else {
+									throw new ARException(
+											"Successfully communicated with the server but failed to add the base image. Perhaps the site was deleted, or there was a problem with the image.");
+								}
+							}
+
+						};
+						ARResponse<String> addArSiteResponse = ARResponse.from(
+								serverResponse, extractor);
+						listener.handleResponse(addArSiteResponse);
+					}
+
+					@Override
+					public void onError(Exception e) {
+						throw new ARException(e);
+					}
+
+				});
+
 	}
 
 	@Override
-	public void augmentImage(InputStream image,
-			ARListener<AugmentedData> listener) {
-
-		// TODO implement augmentImage
-
-	}
-
-	@Override
-	public void augmentImage(InputStream in, double lat, double lon,
-			double compass, ARListener<AugmentedData> listener) {
+	public void startImageAugment(InputStream in, double lat, double lon,
+			double compass, ARListener<String> listener) {
 
 		// TODO implement augmentImage
 

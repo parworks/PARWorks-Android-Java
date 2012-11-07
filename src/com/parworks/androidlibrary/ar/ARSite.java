@@ -155,7 +155,10 @@ public interface ARSite {
 	 *            overlays
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void augmentImage(InputStream in, ARListener<AugmentedData> listener);
+	public void startImageAugment(InputStream in, ARListener<String> listener);
+
+	public void getAugmentedImage(String imageId,
+			ARListener<AugmentedData> listener);
 
 	/**
 	 * Asynchronously augment an image and provide location coordinates. Throws
@@ -175,8 +178,8 @@ public interface ARSite {
 	 *            overlays
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void augmentImage(InputStream in, double lat, double lon,
-			double compass, ARListener<AugmentedData> listener);
+	public void startImageAugment(InputStream in, double lat, double lon,
+			double compass, ARListener<String> listener);
 
 	/**
 	 * Asynchronously delete the site.
