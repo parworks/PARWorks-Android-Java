@@ -7,6 +7,30 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="8" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <activity
+            android:name=".examples.ExampleActivity"
+            android:label="@string/example" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            </activity>
+                    <activity
+            android:name=".examples.ViewImageActivity"
+            android:label="@string/example" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            </activity>
+
+    </application>
 
 
 

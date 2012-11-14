@@ -599,7 +599,7 @@ public class ARSiteImpl implements ARSite {
 									return augmentImageResponse.getImgId();
 								} else {
 									throw new ARException(
-											"Successfully communicated with the server but failed to add the base image. Perhaps the site was deleted, or there was a problem with the image.");
+											"Successfully communicated with the server but failed to augment the image. Perhaps the site does not exist or has no overlays.");
 								}
 							}
 
@@ -928,7 +928,7 @@ public class ARSiteImpl implements ARSite {
 
 		if (augmentImageResponse.getSuccess() == false) {
 			throw new ARException(
-					"Successfully communicated with the server, failed to augment the image.");
+					"Successfully communicated with the server, failed to augment the image. Perhaps the site does not exist or has no overlays.");
 		}
 
 		return augmentImageResponse.getImgId();
