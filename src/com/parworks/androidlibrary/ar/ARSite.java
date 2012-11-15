@@ -45,7 +45,7 @@ public interface ARSite {
 	/**
 	 * Returns the site id connected with this site. Does not do any networking.
 	 * 
-	 * @return
+	 * @return site id
 	 */
 	public String getSiteId();
 
@@ -144,25 +144,15 @@ public interface ARSite {
 	public void deleteOverlay(String id, ARListener<Boolean> listener);
 
 	/**
-	 * Asynchronously augment an image. Throws an ARException if the state is
-	 * not READY_TO_AUGMENT_IMAGES
+	 * Asynchronously augment an image.
 	 * 
-	 * @param in
-	 *            the image in the form of an InputStream
+	 * @param image
+	 *            an inputstream containing the image to be augmented
 	 * @param listener
-	 *            the callback to be used when the call completes providing an
-	 *            ARData object which contains a focal length and list of image
-	 *            overlays
+	 *            a callback to get the augmented data when the call is complete
 	 */
-
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void augmentImage(InputStream image,
-			ARListener<AugmentedData> listener);
-
-	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void startImageAugment(InputStream in, ARListener<String> listener);
-
-	public void getAugmentedImage(String imageId,
 			ARListener<AugmentedData> listener);
 
 	/**
@@ -240,19 +230,12 @@ public interface ARSite {
 	public void deleteOverlay(String id);
 
 	/**
-	 * Begins augmenting an image. Returns the imageId. Use the imageId to poll
-	 * getAugmentResult.
+	 * Synchronously augment an image
 	 * 
-	 * @param in
-	 *            the image to augment in the form of an InputStream
-	 * @return an ARData object containing the focal length and overlays for
-	 *         that augmented image
+	 * @param image
+	 *            an inputstream containing the image
+	 * @return the augmented data
 	 */
-	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public String startImageAugment(InputStream image);
-
-	public AugmentedData getAugmentResult(String imgId);
-
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public AugmentedData augmentImage(InputStream image);
 
