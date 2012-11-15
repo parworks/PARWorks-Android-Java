@@ -25,6 +25,8 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.os.AsyncTask;
+
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
@@ -516,6 +518,29 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
+	public void augmentImage(final InputStream image,
+			final ARListener<AugmentedData> listener) {
+		new AsyncTask<Void, Void, AugmentedData>() {
+
+			@Override
+			protected AugmentedData doInBackground(Void... arg0) {
+				return augmentImage(image);
+			}
+
+			@Override
+			protected void onPostExecute(AugmentedData result) {
+				ARResponse<AugmentedData> response = new ARResponse<AugmentedData>(
+						result);
+
+				listener.handleResponse(response);
+
+			};
+
+		}.execute();
+
+	}
+
+	@Override
 	public void getAugmentedImage(final String imageId,
 			final ARListener<AugmentedData> listener) {
 
@@ -615,14 +640,6 @@ public class ARSiteImpl implements ARSite {
 					}
 
 				});
-
-	}
-
-	@Override
-	public void startImageAugment(InputStream in, double lat, double lon,
-			double compass, ARListener<String> listener) {
-
-		// TODO implement augmentImage
 
 	}
 
@@ -961,9 +978,15 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public AugmentedData augmentImage(InputStream in, long lat, long lon) {
-		return null;
-		// TODO implement augment image sync
+	public AugmentedData augmentImage(InputStream image) {
+		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
+		String imageId = startImageAugment(image);
+
+		AugmentedData augmentedImage = null;
+		while (augmentedImage == null) {
+			augmentedImage = getAugmentResult(imageId);
+		}
+		return augmentedImage;
 	}
 
 	@Override

@@ -154,32 +154,16 @@ public interface ARSite {
 	 *            ARData object which contains a focal length and list of image
 	 *            overlays
 	 */
+
+	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
+	public void augmentImage(InputStream image,
+			ARListener<AugmentedData> listener);
+
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void startImageAugment(InputStream in, ARListener<String> listener);
 
 	public void getAugmentedImage(String imageId,
 			ARListener<AugmentedData> listener);
-
-	/**
-	 * Asynchronously augment an image and provide location coordinates. Throws
-	 * an ARException if the state is not READY_TO_AUGMENT_IMAGES
-	 * 
-	 * @param in
-	 *            the image in the form of an InputStream
-	 * @param lat
-	 *            the latitude of the image
-	 * @param lon
-	 *            the longitude of the image
-	 * @param compass
-	 *            the heading of the image
-	 * @param listener
-	 *            the callback to be used when the call completes providing an
-	 *            ARData object which contains a focal length and list of image
-	 *            overlays
-	 */
-	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void startImageAugment(InputStream in, double lat, double lon,
-			double compass, ARListener<String> listener);
 
 	/**
 	 * Asynchronously delete the site.
@@ -269,21 +253,8 @@ public interface ARSite {
 
 	public AugmentedData getAugmentResult(String imgId);
 
-	/**
-	 * Synchronously augment an image and provide coordinates. Throws an
-	 * ARException if the state is not READY_TO_AUGMENT_IMAGES
-	 * 
-	 * @param in
-	 *            the image to augment in the form of an InputStream
-	 * @param lat
-	 *            the latitude of the image
-	 * @param lon
-	 *            the longitude of the image
-	 * @return an ARData object specifying the focal length and overlays of the
-	 *         augmented image
-	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public AugmentedData augmentImage(InputStream in, long lat, long lon);
+	public AugmentedData augmentImage(InputStream image);
 
 	/**
 	 * Synchronously delete the site
