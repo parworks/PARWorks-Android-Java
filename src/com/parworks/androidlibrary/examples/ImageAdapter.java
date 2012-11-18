@@ -48,8 +48,8 @@ public class ImageAdapter extends BaseAdapter {
 		ThumbnailView thumbnailView;
 		if (convertView == null) {
 			thumbnailView = new ThumbnailView();
-			convertView = mLayoutInflater.inflate(R.layout.gallery_thumbnail,
-					null);
+			convertView = mLayoutInflater.inflate(
+					R.layout.gallery_thumbnail_parworksandroidlibrary, null);
 			thumbnailView.imageView = (ImageView) convertView
 					.findViewById(R.id.imageViewThumbnail);
 			convertView.setTag(thumbnailView);

@@ -8,12 +8,12 @@ import com.parworks.androidlibrary.ar.ARResponse;
 import com.parworks.androidlibrary.ar.ARSite;
 import com.parworks.androidlibrary.ar.ARSites;
 import com.parworks.androidlibrary.response.BaseImageInfo;
+import com.parworks.androidlibrary.utils.BitmapUtils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -41,7 +41,7 @@ public class ExampleActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_choose_site);
+		setContentView(R.layout.activity_choose_site_parworksandroidlibrary);
 		mContext = this;
 
 		mBaseImageView = (GridView) findViewById(R.id.gridViewImage);

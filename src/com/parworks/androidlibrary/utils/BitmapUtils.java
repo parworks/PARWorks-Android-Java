@@ -1,5 +1,7 @@
-package com.parworks.androidlibrary.examples;
+package com.parworks.androidlibrary.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
@@ -43,6 +46,33 @@ public class BitmapUtils {
 	public Bitmap getBitmap(String url) {
 		InputStream imageStream = getImageStream(url);
 		return getBitmap(imageStream);
+	}
+
+	public InputStream convertBitmap(Bitmap image) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		image.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
+		byte[] bitmapdata = bos.toByteArray();
+		return new ByteArrayInputStream(bitmapdata);
+	}
+
+	public void getBitmap(final String url, final GetBitmapListener listener) {
+		new AsyncTask<Void, Void, List<Bitmap>>() {
+
+			@Override
+			protected List<Bitmap> doInBackground(Void... arg0) {
+				List<Bitmap> bitmaps = new ArrayList<Bitmap>();
+				InputStream imageStream = getImageStream(url);
+				bitmaps.add(getBitmap(imageStream));
+				return bitmaps;
+			}
+
+			@Override
+			protected void onPostExecute(List<Bitmap> result) {
+				listener.onResponse(result);
+			}
+
+		}.execute();
+
 	}
 
 	public enum ImageSize {

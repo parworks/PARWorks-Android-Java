@@ -20,7 +20,7 @@ public class ViewImageActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_view_image);
+		setContentView(R.layout.activity_view_image_parworksandroidlibrary);
 
 		Intent extras = getIntent();
 
