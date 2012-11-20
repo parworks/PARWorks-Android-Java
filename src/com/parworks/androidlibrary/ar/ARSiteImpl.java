@@ -255,11 +255,14 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void processBaseImages(final ARListener<State> listener) {
+	public void processBaseImages(BaseImageProcessingProfile profile, final ARListener<State> listener) {
 		handleStateAsync(mId, State.NEEDS_BASE_IMAGE_PROCESSING);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
+		
+		String profileString = profile.name().replace("_", "-").toLowerCase();
+		params.put("profile", profileString);
 
 		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
 				mSignature);
@@ -534,109 +537,6 @@ public class ARSiteImpl implements ARSite {
 
 	}
 
-	// @Override
-	// public void getAugmentedImage(final String imageId,
-	// final ARListener<AugmentedData> listener) {
-	//
-	// Map<String, String> params = new HashMap<String, String>();
-	// params.put("site", mId);
-	// params.put("imgId", imageId);
-	//
-	// AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-	// mSignature);
-	// httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-	// + HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params,
-	// new HttpCallback() {
-	//
-	// @Override
-	// public void onResponse(HttpResponse serverResponse) {
-	// HttpUtils.handleStatusCode(serverResponse
-	// .getStatusLine().getStatusCode());
-	// PayloadExtractor<AugmentedData> extractor = new
-	// PayloadExtractor<AugmentedData>() {
-	//
-	// @Override
-	// public AugmentedData extract(
-	// HttpResponse callbackResponse) {
-	// ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-	// AugmentImageResultResponse augmentResult = responseHandler
-	// .handleResponse(
-	// callbackResponse,
-	// AugmentImageResultResponse.class);
-	// return convertAugmentResultResponse(imageId,
-	// augmentResult);
-	//
-	// }
-	//
-	// };
-	// ARResponse<AugmentedData> infoResponse = ARResponse
-	// .from(serverResponse, extractor);
-	// listener.handleResponse(infoResponse);
-	// }
-	//
-	// @Override
-	// public void onError(Exception e) {
-	// throw new ARException(e);
-	// }
-	//
-	// });
-	//
-	// }
-	//
-	// @Override
-	// public void startImageAugment(InputStream image,
-	// final ARListener<String> listener) {
-	// handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
-	//
-	// AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-	// mSignature);
-	//
-	// Map<String, String> params = new HashMap<String, String>();
-	// params.put("site", mId);
-	//
-	// MultipartEntity imageEntity = new MultipartEntity();
-	// InputStreamBody imageInputStreamBody = new InputStreamBody(image,
-	// "image");
-	// imageEntity.addPart("image", imageInputStreamBody);
-	//
-	// httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL
-	// + HttpUtils.AUGMENT_IMAGE_PATH, params, imageEntity,
-	// new HttpCallback() {
-	//
-	// @Override
-	// public void onResponse(HttpResponse serverResponse) {
-	// HttpUtils.handleStatusCode(serverResponse
-	// .getStatusLine().getStatusCode());
-	// PayloadExtractor<String> extractor = new PayloadExtractor<String>() {
-	//
-	// @Override
-	// public String extract(HttpResponse callbackResponse) {
-	// ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-	// AugmentImageResponse augmentImageResponse = responseHandler
-	// .handleResponse(callbackResponse,
-	// AugmentImageResponse.class);
-	// if (augmentImageResponse.getSuccess() == true) {
-	// return augmentImageResponse.getImgId();
-	// } else {
-	// throw new ARException(
-	// "Successfully communicated with the server but failed to augment the image. Perhaps the site does not exist or has no overlays.");
-	// }
-	// }
-	//
-	// };
-	// ARResponse<String> addArSiteResponse = ARResponse.from(
-	// serverResponse, extractor);
-	// listener.handleResponse(addArSiteResponse);
-	// }
-	//
-	// @Override
-	// public void onError(Exception e) {
-	// throw new ARException(e);
-	// }
-	//
-	// });
-	//
-	// }
 
 	@Override
 	public void delete(final ARListener<Boolean> listener) {
@@ -732,12 +632,15 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public State processBaseImages() {
+	public State processBaseImages(BaseImageProcessingProfile profile) {
 		handleStateSync(mId, State.NEEDS_BASE_IMAGE_PROCESSING);
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
+		
+		String profileString = profile.name().replace("_", "-").toLowerCase();
+		params.put("profile", profileString);
 
 		HttpResponse serverResponse = httpUtils
 				.doGet(HttpUtils.PARWORKS_API_BASE_URL

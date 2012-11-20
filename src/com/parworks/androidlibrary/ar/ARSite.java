@@ -41,6 +41,9 @@ public interface ARSite {
 	public enum State {
 		READY_TO_AUGMENT_IMAGES, NEEDS_MORE_BASE_IMAGES, NEEDS_BASE_IMAGE_PROCESSING, NEEDS_OVERLAYS, PROCESSING
 	}
+	public enum BaseImageProcessingProfile {
+		INDOOR, MACHINE, DEFAULT, OUTDOOR, HIGH_ACCURACY, MEDIUM_ACCURACY, HIGH_ROBUSTNESS, MEDIUM_ROBUSTNESS, FASTEST, TEXTURED
+	}
 
 	/**
 	 * Returns the site id connected with this site. Does not do any networking.
@@ -89,7 +92,7 @@ public interface ARSite {
 	 *            state of the site
 	 */
 	@RequiredState({ State.NEEDS_BASE_IMAGE_PROCESSING })
-	public void processBaseImages(ARListener<State> listener);
+	public void processBaseImages(BaseImageProcessingProfile profile, ARListener<State> listener);
 
 	/**
 	 * Makes an asynchronous server request to get the current state of the
@@ -185,7 +188,7 @@ public interface ARSite {
 	 * @return the state of the site
 	 */
 	@RequiredState({ State.NEEDS_BASE_IMAGE_PROCESSING })
-	public State processBaseImages();
+	public State processBaseImages(BaseImageProcessingProfile profile);
 
 	/**
 	 * This make a sychronous server request to get the state of the site
