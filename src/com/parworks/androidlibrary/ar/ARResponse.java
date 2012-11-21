@@ -15,6 +15,7 @@ package com.parworks.androidlibrary.ar;
 
 import org.apache.http.HttpResponse;
 
+
 /**
  * Used by the ARListener callback to generically provide the response to an
  * asynchronous request.

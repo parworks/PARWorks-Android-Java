@@ -113,6 +113,9 @@ public class HttpUtils {
 		} catch (IOException e) {
 			throw new ARException("Couldn't create site: The HTTP connection was aborted or a problem occurred.",e);
 		}
+		if(response == null) {
+			throw new ARException("The httpresponse was null.");
+		}
 
 		return response;
 

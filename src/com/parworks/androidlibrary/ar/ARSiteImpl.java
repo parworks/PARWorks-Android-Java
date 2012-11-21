@@ -42,8 +42,6 @@ import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
-import com.parworks.androidlibrary.utils.AsyncHttpUtils;
-import com.parworks.androidlibrary.utils.HttpCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
@@ -65,452 +63,143 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void getBaseImages(final ARListener<List<BaseImageInfo>> listener) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.LIST_BASE_IMAGES_PATH, params, new HttpCallback() {
+		new AsyncTask<Void, Void, List<BaseImageInfo>>() {
 
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<List<BaseImageInfo>> extractor = new PayloadExtractor<List<BaseImageInfo>>() {
-
-					@Override
-					public List<BaseImageInfo> extract(
-							HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						ListBaseImagesResponse listBaseImagesResponse = responseHandler
-								.handleResponse(callbackResponse,
-										ListBaseImagesResponse.class);
-						if (listBaseImagesResponse.getSuccess() == true) {
-							return listBaseImagesResponse.getImages();
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to get info.  Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<List<BaseImageInfo>> infoResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(infoResponse);
-			}
-
+			protected List<BaseImageInfo> doInBackground(Void... arg0) {
+				return getBaseImages();
+			}		
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(List<BaseImageInfo> result) {
+				listener.handleResponse(result);
 			}
+			
+			
+		}.execute();
+	
 
-		});
 	}
 
 	@Override
 	public void getSiteInfo(final ARListener<SiteInfo> listener) {
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
-
+		new AsyncTask<Void, Void, SiteInfo>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<SiteInfo> extractor = new PayloadExtractor<SiteInfo>() {
-
-					@Override
-					public SiteInfo extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						GetSiteInfoResponse siteInfoResponse = responseHandler
-								.handleResponse(callbackResponse,
-										GetSiteInfoResponse.class);
-						if (siteInfoResponse.getSuccess() == true) {
-							return siteInfoResponse.getSite();
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to get info.  Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<SiteInfo> infoResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(infoResponse);
+			protected SiteInfo doInBackground(Void... params) {
+				return getSiteInfo();
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(SiteInfo result) {
+				listener.handleResponse(result);
 			}
+		}.execute();
 
-		});
 
 	}
 
-	/**
-	 * Makes a call to the asynchronous getState() method, then throws an
-	 * ARException if the state is not the required state
-	 * 
-	 * @param siteId
-	 *            the id of the site
-	 * @param requiredState
-	 */
-	private void handleStateAsync(String siteId, State requiredState) {
-		handleStateAsync(siteId, requiredState, null);
-	}
 
-	/**
-	 * Makes a call to the asynchronous getState() method, then throws an
-	 * ARException if the state is not the required state
-	 * 
-	 * @param siteId
-	 * @param firstPossibleState
-	 * @param secondPossibleState
-	 */
-	private void handleStateAsync(String siteId,
-			final State firstPossibleState, final State secondPossibleState) {
-		getState(new ARListener<State>() {
 
-			@Override
-			public void handleResponse(ARResponse<State> resp) {
-				State siteState = resp.getPayload();
-				if ((siteState == firstPossibleState)
-						|| (siteState == secondPossibleState)) {
-					return;
-				} else {
-					throw new ARException("State is " + siteState
-							+ ". State must be " + firstPossibleState + " or "
-							+ secondPossibleState);
-				}
-
-			}
-
-		});
-	}
 
 	@Override
-	public void addBaseImage(String filename, InputStream image,
+	public void addBaseImage(final String filename, final InputStream image,
 			final ARListener<BaseImage> listener) {
-		handleStateAsync(mId, State.NEEDS_BASE_IMAGE_PROCESSING,
-				State.NEEDS_MORE_BASE_IMAGES);
+		
+		new AsyncTask<Void, Void, BaseImage>() {
 
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
+			@Override
+			protected BaseImage doInBackground(Void... params) {
+				return addBaseImage(filename, image);
+			}
+			
+			@Override
+			protected void onPostExecute(BaseImage result) {
+				listener.handleResponse(result);
+			}
+			
+		}.execute();
 
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-		params.put("filename", filename);
-
-		MultipartEntity imageEntity = new MultipartEntity();
-		InputStreamBody imageInputStreamBody = new InputStreamBody(image,
-				filename);
-		imageEntity.addPart("image", imageInputStreamBody);
-
-		httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.ADD_BASE_IMAGE_PATH, params, imageEntity,
-				new HttpCallback() {
-
-					@Override
-					public void onResponse(HttpResponse serverResponse) {
-						HttpUtils.handleStatusCode(serverResponse
-								.getStatusLine().getStatusCode());
-						PayloadExtractor<BaseImage> extractor = new PayloadExtractor<BaseImage>() {
-
-							@Override
-							public BaseImage extract(
-									HttpResponse callbackResponse) {
-								ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-								AddBaseImageResponse addBaseImageResponse = responseHandler
-										.handleResponse(callbackResponse,
-												AddBaseImageResponse.class);
-								if (addBaseImageResponse.getSuccess() == true) {
-									return new BaseImage(addBaseImageResponse
-											.getId());
-								} else {
-									throw new ARException(
-											"Successfully communicated with the server but failed to add the base image. Perhaps the site was deleted, or there was a problem with the image.");
-								}
-							}
-
-						};
-						ARResponse<BaseImage> addArSiteResponse = ARResponse
-								.from(serverResponse, extractor);
-						listener.handleResponse(addArSiteResponse);
-					}
-
-					@Override
-					public void onError(Exception e) {
-						throw new ARException(e);
-					}
-
-				});
 
 	}
 
 	@Override
-	public void processBaseImages(BaseImageProcessingProfile profile, final ARListener<State> listener) {
-		handleStateAsync(mId, State.NEEDS_BASE_IMAGE_PROCESSING);
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
+	public void processBaseImages(final BaseImageProcessingProfile profile, final ARListener<State> listener) {
 		
-		String profileString = profile.name().replace("_", "-").toLowerCase();
-		params.put("profile", profileString);
+		new AsyncTask<Void, Void, State>() {
+			@Override
+			protected State doInBackground(Void... params) {
+				return processBaseImages(profile);
+			}
+			@Override
+			protected void onPostExecute(State result) {
+				listener.handleResponse(result);
+			}
+		}.execute();
 
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.INITIATE_BASE_IMAGE_PROCESSING_PATH, params,
-				new HttpCallback() {
-
-					@Override
-					public void onResponse(HttpResponse serverResponse) {
-						HttpUtils.handleStatusCode(serverResponse
-								.getStatusLine().getStatusCode());
-						PayloadExtractor<State> extractor = new PayloadExtractor<State>() {
-
-							@Override
-							public State extract(HttpResponse callbackResponse) {
-								ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-								InitiateBaseImageProcessingResponse processBaseImageResponse = responseHandler
-										.handleResponse(
-												callbackResponse,
-												InitiateBaseImageProcessingResponse.class);
-								if (processBaseImageResponse.getSuccess() == true) {
-									return State.PROCESSING;
-								} else {
-									throw new ARException(
-											"Successfully communicated with the server but failed to initiate image processing. Perhaps the site was deleted.");
-								}
-							}
-
-						};
-						ARResponse<State> processImagesResponse = ARResponse
-								.from(serverResponse, extractor);
-						listener.handleResponse(processImagesResponse);
-					}
-
-					@Override
-					public void onError(Exception e) {
-						throw new ARException(e);
-					}
-
-				});
 
 	}
 
 	@Override
 	public void getState(final ARListener<State> listener) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.GET_SITE_INFO_PATH, params, new HttpCallback() {
-
+		new AsyncTask<Void, Void, State>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<State> extractor = new PayloadExtractor<State>() {
-
-					@Override
-					public State extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						GetSiteInfoResponse siteInfoResponse = responseHandler
-								.handleResponse(callbackResponse,
-										GetSiteInfoResponse.class);
-						if (siteInfoResponse.getSuccess() == true) {
-							SiteInfo siteInfo = siteInfoResponse.getSite();
-							return determineSiteState(siteInfo.getBimState(),
-									siteInfo.getSiteState(),
-									siteInfoResponse.getTotalImages());
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to get state. Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<State> getStateResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(getStateResponse);
+			protected State doInBackground(Void... params) {
+				return getState();
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(State result) {
+				listener.handleResponse(result);
 			}
+		}.execute();
 
-		});
 
 	}
 
 	@Override
-	public void addOverlay(Overlay overlay,
+	public void addOverlay(final Overlay overlay,
 			final ARListener<OverlayResponse> listener) {
-		handleStateAsync(mId, State.NEEDS_OVERLAYS,
-				State.READY_TO_AUGMENT_IMAGES);
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-		params.put("imgId", overlay.getImageId());
-		params.put("name", overlay.getName());
-		params.put("content", overlay.getDescription());
-		for (Vertex v : overlay.getVertices()) {
-			params.put("v", v.getxCoord() + "," + v.getyCoord());
-		}
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.ADD_OVERLAY_PATH, params, new HttpCallback() {
-
+		
+		new AsyncTask<Void, Void, OverlayResponse>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<OverlayResponse> extractor = new PayloadExtractor<OverlayResponse>() {
-
-					@Override
-					public OverlayResponse extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						AddSaveOverlayResponse addOverlayResponse = responseHandler
-								.handleResponse(callbackResponse,
-										AddSaveOverlayResponse.class);
-						if (addOverlayResponse.getSuccess() == true) {
-							return new OverlayResponse(addOverlayResponse
-									.getId());
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to add overlay.  Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<OverlayResponse> overlayResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(overlayResponse);
+			protected OverlayResponse doInBackground(Void... params) {
+				return addOverlay(overlay);
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(OverlayResponse result) {
+				listener.handleResponse(result);
 			}
+		}.execute();
 
-		});
 
 	}
 
 	@Override
-	public void updateOverlay(String id, Overlay overlay,
+	public void updateOverlay(final OverlayResponse overlayToUpdate, final Overlay newOverlay,
 			final ARListener<OverlayResponse> listener) {
-		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-		params.put("id", id);
-		params.put("imgId", overlay.getImageId());
-		params.put("name", overlay.getName());
-		params.put("content", overlay.getDescription());
-		for (Vertex v : overlay.getVertices()) {
-			params.put("v", v.getxCoord() + "," + v.getyCoord());
-		}
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.SAVE_OVERLAY_PATH, params, new HttpCallback() {
-
+		new AsyncTask<Void, Void, OverlayResponse>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<OverlayResponse> extractor = new PayloadExtractor<OverlayResponse>() {
-
-					@Override
-					public OverlayResponse extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						AddSaveOverlayResponse saveOverlayResponse = responseHandler
-								.handleResponse(callbackResponse,
-										AddSaveOverlayResponse.class);
-						if (saveOverlayResponse.getSuccess() == true) {
-							return new OverlayResponse(saveOverlayResponse
-									.getId());
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to update overlay.  Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<OverlayResponse> overlayResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(overlayResponse);
+			protected OverlayResponse doInBackground(Void... params) {
+				return updateOverlay(overlayToUpdate, newOverlay);
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(OverlayResponse result) {
+				listener.handleResponse(result);
 			}
-
-		});
+		}.execute();
 
 	}
 
 	@Override
-	public void deleteOverlay(String id, final ARListener<Boolean> listener) {
-		handleStateAsync(mId, State.READY_TO_AUGMENT_IMAGES);
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-		params.put("id", id);
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.REMOVE_OVERLAY_PATH, params, new HttpCallback() {
-
+	public void deleteOverlay(final OverlayResponse overlay, final ARListener<Boolean> listener) {
+		new AsyncTask<Void, Void, Boolean>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<Boolean> extractor = new PayloadExtractor<Boolean>() {
-
-					@Override
-					public Boolean extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						BasicResponse deletedOverlayResponse = responseHandler
-								.handleResponse(callbackResponse,
-										BasicResponse.class);
-						if (deletedOverlayResponse.getSuccess() == true) {
-							return true;
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to delete overlay. Perhaps the site was deleted.");
-						}
-					}
-
-				};
-				ARResponse<Boolean> overlayResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(overlayResponse);
+			protected Boolean doInBackground(Void... params) {
+				return deleteOverlay(overlay);
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(Boolean result) {
+				listener.handleResponse(result);
 			}
+		}.execute();
 
-		});
 
 	}
 
@@ -526,10 +215,7 @@ public class ARSiteImpl implements ARSite {
 
 			@Override
 			protected void onPostExecute(AugmentedData result) {
-				ARResponse<AugmentedData> response = new ARResponse<AugmentedData>(
-						result);
-
-				listener.handleResponse(response);
+				listener.handleResponse(result);
 
 			};
 
@@ -540,46 +226,18 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void delete(final ARListener<Boolean> listener) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("site", mId);
-
-		AsyncHttpUtils httpUtils = new AsyncHttpUtils(mApiKey, mTime,
-				mSignature);
-		httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
-				+ HttpUtils.REMOVE_SITE_PATH, params, new HttpCallback() {
-
+		new AsyncTask<Void, Void, Boolean>() {
 			@Override
-			public void onResponse(HttpResponse serverResponse) {
-				HttpUtils.handleStatusCode(serverResponse.getStatusLine()
-						.getStatusCode());
-				PayloadExtractor<Boolean> extractor = new PayloadExtractor<Boolean>() {
-
-					@Override
-					public Boolean extract(HttpResponse callbackResponse) {
-						ARResponseHandler responseHandler = new ARResponseHandlerImpl();
-						BasicResponse deleteSiteResponse = responseHandler
-								.handleResponse(callbackResponse,
-										BasicResponse.class);
-						if (deleteSiteResponse.getSuccess() == true) {
-							return true;
-						} else {
-							throw new ARException(
-									"Successfully communicated with the server but failed to get info.  Perhaps the site no longer exists.");
-						}
-					}
-
-				};
-				ARResponse<Boolean> deleteResponse = ARResponse.from(
-						serverResponse, extractor);
-				listener.handleResponse(deleteResponse);
+			protected Boolean doInBackground(Void... params) {
+				return delete();
 			}
-
 			@Override
-			public void onError(Exception e) {
-				throw new ARException(e);
+			protected void onPostExecute(Boolean result) {
+				// TODO Auto-generated method stub
+				super.onPostExecute(result);
 			}
+		}.execute();
 
-		});
 
 	}
 
@@ -791,12 +449,12 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void deleteOverlay(String id) {
+	public Boolean deleteOverlay(OverlayResponse overlay) {
 		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
-		params.put("id", id);
+		params.put("id", overlay.getOverlayId());
 
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 		HttpResponse serverResponse = httpUtils
@@ -813,11 +471,13 @@ public class ARSiteImpl implements ARSite {
 		if (deleteOverlayResponse.getSuccess() == false) {
 			throw new ARException(
 					"Successfully communicated with the server, but the overlay was not deleted. Perhaps it does not exist.");
+		} else {
+			return true;
 		}
 
 	}
 
-	private String startImageAugment(InputStream image) {
+	public String startImageAugment(InputStream image) {
 		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -849,7 +509,7 @@ public class ARSiteImpl implements ARSite {
 
 	}
 
-	private AugmentedData getAugmentResult(String imgId) {
+	public AugmentedData getAugmentResult(String imgId) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("imgId", imgId);
 		params.put("site", mId);
@@ -886,7 +546,7 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void delete() {
+	public Boolean delete() {
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
@@ -906,6 +566,8 @@ public class ARSiteImpl implements ARSite {
 		if (deleteSiteResponse.getSuccess() == false) {
 			throw new ARException(
 					"Successfully communicated with the server, but was unable to delete the site. Perhaps the site no longer exists.");
+		} else {
+			return true;
 		}
 
 	}

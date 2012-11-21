@@ -32,6 +32,7 @@ public interface ARListener<T> {
 	 *         }
 	 * @param resp the response from the asynchronous server request
 	 */
-	public void handleResponse(ARResponse<T> resp);
+	public void handleResponse(T resp);
+//	public void handleResponse(ARResponse<T> resp);
 	
 }

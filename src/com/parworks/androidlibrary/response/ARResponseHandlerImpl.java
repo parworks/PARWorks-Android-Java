@@ -35,7 +35,6 @@ public class ARResponseHandlerImpl implements ARResponseHandler {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		T responseObject = null;
-		
 		try {
 			responseObject = mapper.readValue(serverResponse.getEntity().getContent(),typeOfResponse);
 		} catch (JsonParseException e) {

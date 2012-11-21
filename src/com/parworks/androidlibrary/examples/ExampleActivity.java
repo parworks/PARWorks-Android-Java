@@ -50,8 +50,8 @@ public class ExampleActivity extends Activity {
 		sites.getExisting("FirstSite", new ARListener<ARSite>() {
 
 			@Override
-			public void handleResponse(ARResponse<ARSite> resp) {
-				gotDemoSite(resp.getPayload());
+			public void handleResponse(ARSite resp) {
+				gotDemoSite(resp);
 
 			}
 
@@ -84,8 +84,8 @@ public class ExampleActivity extends Activity {
 		mDemoSite.getBaseImages(new ARListener<List<BaseImageInfo>>() {
 
 			@Override
-			public void handleResponse(ARResponse<List<BaseImageInfo>> resp) {
-				gotBaseImages(resp.getPayload());
+			public void handleResponse(List<BaseImageInfo> resp) {
+				gotBaseImages(resp);
 
 			}
 
@@ -101,7 +101,7 @@ public class ExampleActivity extends Activity {
 		mBaseImages = baseImages;
 		BitmapUtils bitmapUtils = new BitmapUtils();
 		bitmapUtils.getBitmapList(mBaseImages, BitmapUtils.ImageSize.Full,
-				mNumImagesToRetrieve, new BitmapUtils.GetBitmapListener() {
+				mNumImagesToRetrieve, new BitmapUtils.GetBitmapListener<List<Bitmap>>() {
 
 					@Override
 					public void onResponse(List<Bitmap> bitmaps) {

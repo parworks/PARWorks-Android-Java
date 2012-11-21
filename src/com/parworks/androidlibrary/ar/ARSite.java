@@ -130,7 +130,7 @@ public interface ARSite {
 	 *            overlay response which contains the new overlay id
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void updateOverlay(String id, Overlay overlay,
+	public void updateOverlay(OverlayResponse overlayToUpdate, Overlay newOverlay,
 			ARListener<OverlayResponse> listener);
 
 	/**
@@ -144,7 +144,7 @@ public interface ARSite {
 	 *            overlay response which contains the new overlay id
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void deleteOverlay(String id, ARListener<Boolean> listener);
+	public void deleteOverlay(OverlayResponse overlay, ARListener<Boolean> listener);
 
 	/**
 	 * Asynchronously augment an image.
@@ -230,7 +230,7 @@ public interface ARSite {
 	 *            the id of the overlay to delete
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void deleteOverlay(String id);
+	public Boolean deleteOverlay(OverlayResponse overlay);
 
 	/**
 	 * Synchronously augment an image
@@ -245,7 +245,7 @@ public interface ARSite {
 	/**
 	 * Synchronously delete the site
 	 */
-	public void delete();
+	public Boolean delete();
 
 	/**
 	 * Makes a synchronous server request to get the site info

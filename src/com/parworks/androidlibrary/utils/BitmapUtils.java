@@ -55,19 +55,18 @@ public class BitmapUtils {
 		return new ByteArrayInputStream(bitmapdata);
 	}
 
-	public void getBitmap(final String url, final GetBitmapListener listener) {
-		new AsyncTask<Void, Void, List<Bitmap>>() {
+	public void getBitmap(final String url, final GetBitmapListener<Bitmap> listener) {
+		new AsyncTask<Void, Void, Bitmap>() {
 
 			@Override
-			protected List<Bitmap> doInBackground(Void... arg0) {
-				List<Bitmap> bitmaps = new ArrayList<Bitmap>();
+			protected Bitmap doInBackground(Void... arg0) {
 				InputStream imageStream = getImageStream(url);
-				bitmaps.add(getBitmap(imageStream));
-				return bitmaps;
+				return getBitmap(imageStream);	
+				
 			}
 
 			@Override
-			protected void onPostExecute(List<Bitmap> result) {
+			protected void onPostExecute(Bitmap result) {
 				listener.onResponse(result);
 			}
 
@@ -80,18 +79,18 @@ public class BitmapUtils {
 
 	}
 
-	public interface GetBitmapListener {
-		public void onResponse(List<Bitmap> bitmaps);
+	public interface GetBitmapListener<T> {
+		public void onResponse(T bitmaps);
 	}
 
 	public void getBitmapList(List<BaseImageInfo> baseImages, ImageSize size,
-			GetBitmapListener listener) {
+			GetBitmapListener<List<Bitmap>> listener) {
 		getBitmapList(baseImages, size, null, listener);
 	}
 
 	public void getBitmapList(final List<BaseImageInfo> baseImages,
 			final ImageSize size, final Integer max,
-			final GetBitmapListener listener) {
+			final GetBitmapListener<List<Bitmap>> listener) {
 
 		final int numImagesToDownload;
 		if (max == null) {

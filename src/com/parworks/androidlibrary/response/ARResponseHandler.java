@@ -15,6 +15,7 @@ package com.parworks.androidlibrary.response;
 
 import org.apache.http.HttpResponse;
 
+
 /**
  * Parses the http response from an AR endpoint and creates the desired object.
  * @author Adam Hickey
