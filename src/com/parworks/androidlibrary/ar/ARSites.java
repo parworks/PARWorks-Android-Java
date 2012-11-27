@@ -36,7 +36,7 @@ import com.parworks.androidlibrary.utils.HttpUtils;
  * Used for Synchronously and Asynchronously finding, managing, and creating
  * ARSites
  * 
- * @author Jules White, Adam Hickey
+ * @author Jules White, Adam Hickey, Yu Sun
  * 
  */
 public class ARSites {
@@ -192,8 +192,6 @@ public class ARSites {
 				listener.handleResponse(result);
 			}
 		}.execute();
-
-
 	}
 	
 	/**

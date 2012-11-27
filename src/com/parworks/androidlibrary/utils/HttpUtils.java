@@ -42,6 +42,7 @@ import com.parworks.androidlibrary.ar.ARException;
 public class HttpUtils {
 	
 	public final static String PARWORKS_API_BASE_URL = "https://mars.parworksapi.com"; //"http://dev.parworksapi.com"; 
+	public final static String PARWORKS_AUTH_API_BASE_URL = "https://portal.parworksapi.com";
 
 	
 	public final static String BASE_IMAGE_PROCESSING_STATE_PATH = "/ar/site/process/state";
@@ -59,7 +60,9 @@ public class HttpUtils {
 	public final static String GET_SITE_INFO_PATH = "/ar/site/info";
 	public final static String REMOVE_SITE_PATH = "/ar/site/remove";
 	public final static String NEARBY_SITE_PATH = "/ar/site/nearby";
-	public static final String USER_SITE_LIST_PATH = "/ar/site/list";
+	public final static String USER_SITE_LIST_PATH = "/ar/site/list";
+	public final static String CREATE_USER_PATH = "/ar/mars/user/account/create";
+	public final static String RETRIEVE_KEY_PATH = "/ar/mars/user/account/getkey";
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
 	
 	
@@ -73,6 +76,10 @@ public class HttpUtils {
 		mSignature = signature;
 	}
 	
+	/** Empty constructor used to make calls without keys */
+	public HttpUtils() {
+		
+	}
 	
 	/**
 	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
