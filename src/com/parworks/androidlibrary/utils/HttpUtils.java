@@ -59,6 +59,7 @@ public class HttpUtils {
 	public final static String GET_SITE_INFO_PATH = "/ar/site/info";
 	public final static String REMOVE_SITE_PATH = "/ar/site/remove";
 	public final static String NEARBY_SITE_PATH = "/ar/site/nearby";
+	public static final String USER_SITE_LIST_PATH = "/ar/site/list";
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
 	
 	

@@ -26,6 +26,7 @@ import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
+import com.parworks.androidlibrary.response.ListUserSitesResponse;
 import com.parworks.androidlibrary.response.NearbySitesResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.utils.HMacShaPasswordEncoder;
@@ -194,11 +195,62 @@ public class ARSites {
 
 
 	}
-
+	
+	/**
+	 * Asynchronously get all sites owned by the users
+	 *
+	 * @param listener
+	 *            the callback which provides all the ARSite once the call completes
+	 */
+	public void getUserSites(final ARListener<List<ARSite>> listener) {
+		new AsyncTask<Void, Void, List<ARSite>>() {
+			@Override
+			protected List<ARSite> doInBackground(Void... params) {
+				return getUserSites();
+			}
+			@Override
+			protected void onPostExecute(List<ARSite> result) {
+				listener.handleResponse(result);
+			}
+		}.execute();
+	}
+	
 	/*
 	 * synchronous methods
 	 */
+	
+	/**
+	 * Synchronously get all sites owned by the users
+	 * 
+	 * @return the list of ARSite 
+	 */
+	public List<ARSite> getUserSites() {
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse;
+		serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.USER_SITE_LIST_PATH);
 
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		ListUserSitesResponse listUserSitesResponse = responseHandler.handleResponse(
+				serverResponse, ListUserSitesResponse.class);
+		
+		if (listUserSitesResponse.getSites() != null) {
+			List<ARSite> userSites = new ArrayList<ARSite>();
+			for(String siteId : listUserSitesResponse.getSites()) {
+				ARSite newSite = new ARSiteImpl(siteId,
+						mApiKey, mTime, mSignature);
+				userSites.add(newSite);
+			}
+			return userSites;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but failed to get the user's sites. The most likely cause is that the given credentials does not exist.");
+		}
+	}
+	
 	/**
 	 * Synchronously get a previously created site
 	 * 
