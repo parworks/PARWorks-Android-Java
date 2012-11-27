@@ -22,6 +22,13 @@ public class OverlayImpl implements Overlay{
 	private String mDescription;
 	private List<Vertex> mVertices;
 	
+	public OverlayImpl(BaseImage imageId, String name, String description, List<Vertex> vertices) {
+		mImageId = imageId.getBaseImageId();
+		mName = name;
+		mDescription = description;
+		mVertices = vertices;
+	}
+	
 	public OverlayImpl(String imageId, String name, String description, List<Vertex> vertices) {
 		mImageId = imageId;
 		mName = name;

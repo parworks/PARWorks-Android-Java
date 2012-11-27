@@ -41,6 +41,12 @@ public interface ARSite {
 	public enum State {
 		READY_TO_AUGMENT_IMAGES, NEEDS_MORE_BASE_IMAGES, NEEDS_BASE_IMAGE_PROCESSING, NEEDS_OVERLAYS, PROCESSING
 	}
+	
+	/**
+	 * An enum representing different base image processing profiles
+	 * @author adam
+	 *
+	 */
 	public enum BaseImageProcessingProfile {
 		INDOOR, MACHINE, DEFAULT, OUTDOOR, HIGH_ACCURACY, MEDIUM_ACCURACY, HIGH_ROBUSTNESS, MEDIUM_ROBUSTNESS, FASTEST, TEXTURED
 	}

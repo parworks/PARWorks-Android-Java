@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.parworks.androidlibrary.R;
 import com.parworks.androidlibrary.ar.ARListener;
-import com.parworks.androidlibrary.ar.ARResponse;
 import com.parworks.androidlibrary.ar.ARSite;
 import com.parworks.androidlibrary.ar.ARSites;
 import com.parworks.androidlibrary.response.BaseImageInfo;
