@@ -42,6 +42,7 @@ import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
+import com.parworks.androidlibrary.response.SiteInfoSummary;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
@@ -697,6 +698,45 @@ public class ARSiteImpl implements ARSite {
 			vertices.add(new Vertex(xCoord, yCoord));
 		}
 		return vertices;
+	}
+
+	@Override
+	public SiteInfoSummary getSiteInfoSummary() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.GET_SITE_INFO_SUMMARY_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		SiteInfoSummary siteInfoSummary = responseHandler
+				.handleResponse(serverResponse, SiteInfoSummary.class);
+
+		if (siteInfoSummary != null) {
+			return siteInfoSummary;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get site info summary. Perhaps the site no longer exists.");
+		}	
+	}
+	
+	@Override
+	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener) {
+		new AsyncTask<Void, Void, SiteInfoSummary>() {
+			@Override
+			protected SiteInfoSummary doInBackground(Void... params) {
+				return getSiteInfoSummary();
+			}
+			@Override
+			protected void onPostExecute(SiteInfoSummary result) {
+				listener.handleResponse(result);
+			}
+		}.execute();
 	}
 
 }

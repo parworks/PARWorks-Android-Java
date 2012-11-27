@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.SiteInfo;
+import com.parworks.androidlibrary.response.SiteInfoSummary;
 
 /**
  * An interface representing an ARSite
@@ -71,6 +72,15 @@ public interface ARSite {
 	 *            a SiteInfo object.
 	 */
 	public void getSiteInfo(ARListener<SiteInfo> listener);
+	
+	/**
+	 * Makes an asynchronous server request to get site info summary
+	 * 
+	 * @param listener
+	 *            the callback to be used when the call completes. Will contain
+	 *            a SiteInfo object.
+	 */
+	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener);
 
 	/**
 	 * Asynchronously add a base image. Throws an ARException if the state is
@@ -259,6 +269,14 @@ public interface ARSite {
 	 * @return
 	 */
 	public SiteInfo getSiteInfo();
+	
+	/**
+	 * Makes a synchronous server request to get the site info summary
+	 * including the site id, the site state, the number of images, and the number of overlays
+	 * 
+	 * @return
+	 */
+	public SiteInfoSummary getSiteInfoSummary();
 
 	/**
 	 * Synchronously get the site's base images
