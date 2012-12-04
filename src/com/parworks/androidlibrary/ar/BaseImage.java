@@ -13,6 +13,7 @@
  */
 package com.parworks.androidlibrary.ar;
 
+
 /**
  * Returned after adding a base image to an ARSite. Contains the id necessary to access that base image.
  * @author Jules White
@@ -21,6 +22,7 @@ package com.parworks.androidlibrary.ar;
 public class BaseImage {
 
 	private final String baseImageId_;
+	private String contentSizeImagePath;
 
 	public BaseImage(String baseImageId) {
 		super();
@@ -31,4 +33,11 @@ public class BaseImage {
 		return baseImageId_;
 	}
 
+	public String getContentSizeImagePath() {
+		return contentSizeImagePath;
+	}
+
+	public void setContentSizeImagePath(String contentSizeImagePath) {
+		this.contentSizeImagePath = contentSizeImagePath;
+	}
 }

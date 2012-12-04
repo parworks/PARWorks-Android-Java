@@ -2,6 +2,8 @@ package com.parworks.androidlibrary.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -13,6 +15,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
+import com.parworks.androidlibrary.ar.ARException;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 
 /**
@@ -107,6 +110,52 @@ public class BitmapUtils {
 
 		}.execute();
 
+	}
+	
+	/**
+	 * Sync download the image and save it in the local disk
+	 * 
+	 * @param url
+	 * @param filePath
+	 */
+	public File downloadBitmap(final String url, final String filePath) {
+		InputStream inputStream = getImageStream(url);
+		File outputFile = new File(filePath);
+		try{
+			FileOutputStream out = new FileOutputStream(outputFile, false);
+			int read = 0;
+			byte[] bytes = new byte[1024];			 
+			while ((read = inputStream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}			 
+			inputStream.close();
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			throw new ARException("Failed to download and save image");
+		}				
+		return outputFile;
+	}
+	
+	/**
+	 * Async download the image and save it in the local disk
+	 * 
+	 * @param url
+	 * @param filePath
+	 * @param listener
+	 */
+	public void downloadBitmap(final String url, final String filePath, final GetBitmapListener<File> listener) {
+		new AsyncTask<Void, Void, File>() {
+			@Override
+			protected File doInBackground(Void... arg0) {				
+				return downloadBitmap(url, filePath);					
+			}
+
+			@Override
+			protected void onPostExecute(File result) {
+				listener.onResponse(result);
+			}
+		}.execute();
 	}
 
 	/**
