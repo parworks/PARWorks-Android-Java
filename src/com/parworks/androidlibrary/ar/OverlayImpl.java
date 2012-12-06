@@ -13,9 +13,11 @@
  */
 package com.parworks.androidlibrary.ar;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class OverlayImpl implements Overlay{
+@SuppressWarnings("serial")
+public class OverlayImpl implements Overlay, Serializable {
 	
 	private String mImageId;
 	private String mName;

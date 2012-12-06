@@ -693,9 +693,10 @@ public class ARSiteImpl implements ARSite {
 
 		List<Vertex> vertices = new ArrayList<Vertex>();
 		for (int i = 0; i < points.length; i += 3) {
-			float xCoord = Float.parseFloat(points[0]);
-			float yCoord = Float.parseFloat(points[1]);
-			vertices.add(new Vertex(xCoord, yCoord));
+			float xCoord = Float.parseFloat(points[i]);
+			float yCoord = Float.parseFloat(points[i + 1]);
+			float zCoord = Float.parseFloat(points[i + 2]);
+			vertices.add(new Vertex(xCoord, yCoord, zCoord));
 		}
 		return vertices;
 	}

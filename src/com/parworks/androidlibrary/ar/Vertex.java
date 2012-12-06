@@ -13,14 +13,19 @@
  */
 package com.parworks.androidlibrary.ar;
 
-public class Vertex {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Vertex implements Serializable {
 
 	private float xCoord;
 	private float yCoord;
+	private float zCoord;
 
-	public Vertex(float x, float y) {
+	public Vertex(float x, float y, float z) {
 		xCoord = x;
 		yCoord = y;
+		zCoord = z;
 	}
 
 	public float getxCoord() {
@@ -37,6 +42,18 @@ public class Vertex {
 
 	public void setyCoord(int yCoord) {
 		this.yCoord = yCoord;
+	}
+
+	public float getzCoord() {
+		return zCoord;
+	}
+
+	public void setzCoord(float zCoord) {
+		this.zCoord = zCoord;
+	}
+	
+	public String toString() {
+		return "(" + xCoord + "," + yCoord + "," + zCoord + ")";
 	}
 
 }

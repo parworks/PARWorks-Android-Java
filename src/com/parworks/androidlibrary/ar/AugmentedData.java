@@ -13,6 +13,7 @@
  */
 package com.parworks.androidlibrary.ar;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -22,7 +23,8 @@ import java.util.List;
  * @author Jules White
  * 
  */
-public class AugmentedData {
+@SuppressWarnings("serial")
+public class AugmentedData implements Serializable {
 
 	private String mFov;
 	private String mFocalLength;
