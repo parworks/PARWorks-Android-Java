@@ -36,6 +36,8 @@ import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
+import com.parworks.androidlibrary.response.GetSiteOverlaysResponse;
+import com.parworks.androidlibrary.response.ImageOverlayInfo;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
 import com.parworks.androidlibrary.response.ListBaseImagesResponse;
 import com.parworks.androidlibrary.response.OverlayAugmentResponse;
@@ -738,6 +740,46 @@ public class ARSiteImpl implements ARSite {
 				listener.handleResponse(result);
 			}
 		}.execute();
+	}
+
+	@Override
+	public List<ImageOverlayInfo> getSiteOverlays(String siteId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.GET_SITE_OVERLAYS_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		GetSiteOverlaysResponse getSiteOverlaysResponse = responseHandler
+				.handleResponse(serverResponse, GetSiteOverlaysResponse.class);
+
+		if (getSiteOverlaysResponse.getSuccess()) {
+			return getSiteOverlaysResponse.getOverlays();
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get site info summary. Perhaps the site no longer exists.");
+		}
+	}
+
+	@Override
+	public void getSiteOverlays(final String siteId,
+			final ARListener<List<ImageOverlayInfo>> listener) {
+		new AsyncTask<Void, Void, List<ImageOverlayInfo>>() {
+			@Override
+			protected List<ImageOverlayInfo> doInBackground(Void... params) {
+				return getSiteOverlays(siteId);
+			}
+			@Override
+			protected void onPostExecute(List<ImageOverlayInfo> result) {
+				listener.handleResponse(result);
+			}
+		}.execute();		
 	}
 
 }

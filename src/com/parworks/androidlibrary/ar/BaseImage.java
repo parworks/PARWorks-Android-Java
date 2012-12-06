@@ -23,6 +23,8 @@ public class BaseImage {
 
 	private final String baseImageId_;
 	private String contentSizeImagePath;
+	private int width;
+	private int height;
 
 	public BaseImage(String baseImageId) {
 		super();
@@ -39,5 +41,21 @@ public class BaseImage {
 
 	public void setContentSizeImagePath(String contentSizeImagePath) {
 		this.contentSizeImagePath = contentSizeImagePath;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
 	}
 }

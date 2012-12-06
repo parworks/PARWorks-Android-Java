@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.parworks.androidlibrary.response.BaseImageInfo;
+import com.parworks.androidlibrary.response.ImageOverlayInfo;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
 
@@ -52,6 +53,21 @@ public interface ARSite {
 		INDOOR, MACHINE, DEFAULT, OUTDOOR, HIGH_ACCURACY, MEDIUM_ACCURACY, HIGH_ROBUSTNESS, MEDIUM_ROBUSTNESS, FASTEST, TEXTURED
 	}
 
+	/**
+	 * Returns the overlays associated with the given site
+	 * 
+	 * @param siteId
+	 */
+	public List<ImageOverlayInfo> getSiteOverlays(String siteId);
+	
+	/**
+	 * Asynchronously returns the overlays associated with the given site
+	 * 
+	 * @param siteId
+	 * @param listener
+	 */
+	public void getSiteOverlays(String siteId, ARListener<List<ImageOverlayInfo>> listener);
+	
 	/**
 	 * Returns the site id connected with this site. Does not do any networking.
 	 * 

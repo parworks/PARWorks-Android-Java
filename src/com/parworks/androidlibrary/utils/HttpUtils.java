@@ -47,7 +47,7 @@ public class HttpUtils {
 	
 	public final static String BASE_IMAGE_PROCESSING_STATE_PATH = "/ar/site/process/state";
 	public final static String INITIATE_BASE_IMAGE_PROCESSING_PATH = "/ar/site/process";
-	public final static String GET_SITE_OVERLAYS_PATH = "ar/site/overlay";
+	public final static String GET_SITE_OVERLAYS_PATH = "/ar/site/overlay";
 	public final static String ADD_OVERLAY_PATH = "/ar/site/overlay/add";
 	public final static String SAVE_OVERLAY_PATH = "/ar/site/overlay/save";
 	public final static String REMOVE_OVERLAY_PATH = "/ar/site/overlay/remove";
