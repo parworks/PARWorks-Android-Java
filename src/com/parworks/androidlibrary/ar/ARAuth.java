@@ -11,6 +11,8 @@ import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.ApiKeys;
 import com.parworks.androidlibrary.response.GetApiKeysResponse;
+import com.parworks.androidlibrary.utils.AsyncGenericTask;
+import com.parworks.androidlibrary.utils.AsyncGenericTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 /**
@@ -149,16 +151,29 @@ public class ARAuth {
 	 * @param listener
 	 *            the callback which provides the ARSite once the call completes
 	 */
-	public void getApiKeys(final String email, final String password, final ARListener<ApiKeys> listener) {
-		new AsyncTask<Void, Void, ApiKeys>() {
+	public void getApiKeys(final String email, final String password, final ARListener<ApiKeys> listener, final ARErrorListener onErrorListener) {
+		
+		GenericCallback<ApiKeys> genericCallback = new GenericCallback<ApiKeys>() {
+
 			@Override
-			protected ApiKeys doInBackground(Void... params) {
+			public ApiKeys toCall() {
 				return getApiKeys(email, password);
 			}
+
 			@Override
-			protected void onPostExecute(ApiKeys result) {
-				listener.handleResponse(result);
+			public void onComplete(ApiKeys keys) {
+				listener.handleResponse(keys);
+				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				onErrorListener.handleError(error);
+				
+			}
+			
+		};
+		AsyncGenericTask<ApiKeys> asyncTask = new AsyncGenericTask<ApiKeys>(genericCallback);
+		asyncTask.execute();
 	}
 }
