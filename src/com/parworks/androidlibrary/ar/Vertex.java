@@ -32,7 +32,7 @@ public class Vertex implements Serializable {
 		return xCoord;
 	}
 
-	public void setxCoord(int xCoord) {
+	public void setxCoord(float xCoord) {
 		this.xCoord = xCoord;
 	}
 
@@ -40,7 +40,7 @@ public class Vertex implements Serializable {
 		return yCoord;
 	}
 
-	public void setyCoord(int yCoord) {
+	public void setyCoord(float yCoord) {
 		this.yCoord = yCoord;
 	}
 

@@ -382,8 +382,8 @@ public class ARSiteImpl implements ARSite {
 
 		for (Vertex currentVertex : vertices) {
 			try {
-				entity.addPart("v", new StringBody(currentVertex.getxCoord()
-						+ "," + currentVertex.getyCoord()));
+				entity.addPart("v", new StringBody((int) currentVertex.getxCoord()
+						+ "," + (int) currentVertex.getyCoord()));
 			} catch (UnsupportedEncodingException e) {
 				throw new ARException(e);
 			}
@@ -502,7 +502,7 @@ public class ARSiteImpl implements ARSite {
 		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
 		AugmentImageResponse augmentImageResponse = responseHandler
 				.handleResponse(serverResponse, AugmentImageResponse.class);
-
+		
 		if (augmentImageResponse.getSuccess() == false) {
 			throw new ARException(
 					"Successfully communicated with the server, failed to augment the image. Perhaps the site does not exist or has no overlays.");
