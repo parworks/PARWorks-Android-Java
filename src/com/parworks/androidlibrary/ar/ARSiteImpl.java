@@ -453,7 +453,7 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public Boolean deleteOverlay(OverlayResponse overlay) {
-		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
+		//handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
