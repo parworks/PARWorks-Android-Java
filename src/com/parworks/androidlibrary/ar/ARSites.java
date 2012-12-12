@@ -29,6 +29,8 @@ import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.ListUserSitesResponse;
 import com.parworks.androidlibrary.response.NearbySitesResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
+import com.parworks.androidlibrary.utils.GenericAsyncTask;
+import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HMacShaPasswordEncoder;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
@@ -77,17 +79,31 @@ public class ARSites {
 	 */
 	public void create(final String id, final String name, final double lon,
 			final double lat, final String desc, final String feature,
-			final String channel, final ARListener<ARSite> listener) {
-		new AsyncTask<Void, Void, ARSite>() {
+			final String channel, final ARListener<ARSite> listener, final ARErrorListener onErrorListener) {
+		
+		GenericCallback<ARSite> genericCallback = new GenericCallback<ARSite>() {
+
 			@Override
-			protected ARSite doInBackground(Void... params) {
+			public ARSite toCall() {
 				return create(id, name, lon, lat, desc, feature, channel);
 			}
+
 			@Override
-			protected void onPostExecute(ARSite result) {
+			public void onComplete(ARSite result) {
 				listener.handleResponse(result);
+				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				onErrorListener.handleError(error);
+				
+			}
+			
+		};
+		
+		GenericAsyncTask<ARSite> asyncTask = new GenericAsyncTask<ARSite>(genericCallback);
+		asyncTask.execute();
 
 
 	}

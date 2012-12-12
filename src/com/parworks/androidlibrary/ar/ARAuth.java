@@ -11,8 +11,8 @@ import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.ApiKeys;
 import com.parworks.androidlibrary.response.GetApiKeysResponse;
-import com.parworks.androidlibrary.utils.AsyncGenericTask;
-import com.parworks.androidlibrary.utils.AsyncGenericTask.GenericCallback;
+import com.parworks.androidlibrary.utils.GenericAsyncTask;
+import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 /**
@@ -173,7 +173,7 @@ public class ARAuth {
 			}
 			
 		};
-		AsyncGenericTask<ApiKeys> asyncTask = new AsyncGenericTask<ApiKeys>(genericCallback);
+		GenericAsyncTask<ApiKeys> asyncTask = new GenericAsyncTask<ApiKeys>(genericCallback);
 		asyncTask.execute();
 	}
 }

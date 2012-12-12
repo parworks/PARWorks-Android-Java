@@ -3,7 +3,7 @@ package com.parworks.androidlibrary.utils;
 import android.os.AsyncTask;
 
 
-public class AsyncGenericTask<T> extends AsyncTask<Void, Void, AsyncGenericTask.GenericResult<T>>{
+public class GenericAsyncTask<T> extends AsyncTask<Void, Void, GenericAsyncTask.GenericResult<T>>{
 	
 	static class GenericResult<T> {
 		public T result = null;
@@ -18,7 +18,7 @@ public class AsyncGenericTask<T> extends AsyncTask<Void, Void, AsyncGenericTask.
 
 	private GenericCallback<T> mCallback;
 	
-	public AsyncGenericTask(GenericCallback<T> callback) {
+	public GenericAsyncTask(GenericCallback<T> callback) {
 		mCallback = callback;
 	}
 
