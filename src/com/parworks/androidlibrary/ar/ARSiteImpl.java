@@ -252,8 +252,9 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public BaseImage addBaseImage(String filename, InputStream image) {
-		handleStateSync(mId, State.NEEDS_MORE_BASE_IMAGES,
-				State.NEEDS_BASE_IMAGE_PROCESSING);
+//		handleStateSync(mId, State.NEEDS_MORE_BASE_IMAGES,
+//				State.NEEDS_BASE_IMAGE_PROCESSING);
+		
 		// make httputils
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 
