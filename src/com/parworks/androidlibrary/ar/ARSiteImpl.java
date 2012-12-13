@@ -45,6 +45,8 @@ import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
+import com.parworks.androidlibrary.utils.GenericAsyncTask;
+import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
@@ -124,18 +126,31 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void processBaseImages(final BaseImageProcessingProfile profile, final ARListener<State> listener) {
+	public void processBaseImages(final BaseImageProcessingProfile profile, final ARListener<State> listener, final ARErrorListener onErrorListener) {
 		
-		new AsyncTask<Void, Void, State>() {
+		GenericCallback<State> genericCallback = new GenericCallback<State>() {
+
 			@Override
-			protected State doInBackground(Void... params) {
+			public State toCall() {
 				return processBaseImages(profile);
 			}
+
 			@Override
-			protected void onPostExecute(State result) {
+			public void onComplete(State result) {
 				listener.handleResponse(result);
+				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				onErrorListener.handleError(error);
+				
+			}
+			
+		};
+		
+		GenericAsyncTask<State> asyncTask = new GenericAsyncTask<State>(genericCallback);
+		asyncTask.execute();
 
 
 	}

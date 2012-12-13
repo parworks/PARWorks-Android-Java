@@ -124,7 +124,7 @@ public interface ARSite {
 	 *            state of the site
 	 */
 	@RequiredState({ State.NEEDS_BASE_IMAGE_PROCESSING })
-	public void processBaseImages(BaseImageProcessingProfile profile, ARListener<State> listener);
+	public void processBaseImages(BaseImageProcessingProfile profile, ARListener<State> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Makes an asynchronous server request to get the current state of the
