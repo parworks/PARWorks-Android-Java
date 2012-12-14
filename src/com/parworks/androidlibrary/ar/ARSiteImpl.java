@@ -25,8 +25,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
-import android.os.AsyncTask;
-
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
@@ -67,69 +65,95 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void getBaseImages(final ARListener<List<BaseImageInfo>> listener) {
-		new AsyncTask<Void, Void, List<BaseImageInfo>>() {
-
+	public void getBaseImages(final ARListener<List<BaseImageInfo>> listener,
+			final ARErrorListener onErrorListener) {
+		
+		GenericCallback<List<BaseImageInfo>> genericCallback = 
+				new GenericCallback<List<BaseImageInfo>>() {
 			@Override
-			protected List<BaseImageInfo> doInBackground(Void... arg0) {
+			public List<BaseImageInfo> toCall() {
 				return getBaseImages();
-			}		
-			@Override
-			protected void onPostExecute(List<BaseImageInfo> result) {
-				listener.handleResponse(result);
 			}
-			
-			
-		}.execute();
-	
 
+			@Override
+			public void onComplete(List<BaseImageInfo> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<BaseImageInfo>> asyncTask = 
+				new GenericAsyncTask<List<BaseImageInfo>>(genericCallback);
+		asyncTask.execute();
 	}
 
 	@Override
-	public void getSiteInfo(final ARListener<SiteInfo> listener) {
-		new AsyncTask<Void, Void, SiteInfo>() {
+	public void getSiteInfo(final ARListener<SiteInfo> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<SiteInfo> genericCallback = 
+				new GenericCallback<SiteInfo>() {
 			@Override
-			protected SiteInfo doInBackground(Void... params) {
+			public SiteInfo toCall() {
 				return getSiteInfo();
 			}
+
 			@Override
-			protected void onPostExecute(SiteInfo result) {
-				listener.handleResponse(result);
+			public void onComplete(SiteInfo result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
 
-
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<SiteInfo> asyncTask = 
+				new GenericAsyncTask<SiteInfo>(genericCallback);
+		asyncTask.execute();
 	}
-
-
-
 
 	@Override
 	public void addBaseImage(final String filename, final InputStream image,
-			final ARListener<BaseImage> listener) {
-		
-		new AsyncTask<Void, Void, BaseImage>() {
-
+			final ARListener<BaseImage> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<BaseImage> genericCallback = 
+				new GenericCallback<BaseImage>() {
 			@Override
-			protected BaseImage doInBackground(Void... params) {
+			public BaseImage toCall() {
 				return addBaseImage(filename, image);
 			}
-			
+
 			@Override
-			protected void onPostExecute(BaseImage result) {
-				listener.handleResponse(result);
+			public void onComplete(BaseImage result) {
+				listener.handleResponse(result);				
 			}
-			
-		}.execute();
 
-
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<BaseImage> asyncTask = 
+				new GenericAsyncTask<BaseImage>(genericCallback);
+		asyncTask.execute();
 	}
 
 	@Override
-	public void processBaseImages(final BaseImageProcessingProfile profile, final ARListener<State> listener, final ARErrorListener onErrorListener) {
+	public void processBaseImages(final BaseImageProcessingProfile profile, 
+			final ARListener<State> listener, final ARErrorListener onErrorListener) {
 		
 		GenericCallback<State> genericCallback = new GenericCallback<State>() {
-
 			@Override
 			public State toCall() {
 				return processBaseImages(profile);
@@ -137,126 +161,176 @@ public class ARSiteImpl implements ARSite {
 
 			@Override
 			public void onComplete(State result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<State> asyncTask = new GenericAsyncTask<State>(genericCallback);
+		asyncTask.execute();
+	}
+
+	@Override
+	public void getState(final ARListener<State> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<State> genericCallback = new GenericCallback<State>() {
+			@Override
+			public State toCall() {
+				return getState();
+			}
+
+			@Override
+			public void onComplete(State result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<State> asyncTask = new GenericAsyncTask<State>(genericCallback);
+		asyncTask.execute();		
+	}
+
+	@Override
+	public void addOverlay(final Overlay overlay,
+			final ARListener<OverlayResponse> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<OverlayResponse> genericCallback = new GenericCallback<OverlayResponse>() {
+			@Override
+			public OverlayResponse toCall() {
+				return addOverlay(overlay);
+			}
+
+			@Override
+			public void onComplete(OverlayResponse result) {
 				listener.handleResponse(result);
 				
 			}
 
 			@Override
 			public void onError(Exception error) {
-				onErrorListener.handleError(error);
-				
-			}
-			
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
 		};
 		
-		GenericAsyncTask<State> asyncTask = new GenericAsyncTask<State>(genericCallback);
-		asyncTask.execute();
-
-
-	}
-
-	@Override
-	public void getState(final ARListener<State> listener) {
-		new AsyncTask<Void, Void, State>() {
-			@Override
-			protected State doInBackground(Void... params) {
-				return getState();
-			}
-			@Override
-			protected void onPostExecute(State result) {
-				listener.handleResponse(result);
-			}
-		}.execute();
-
-
-	}
-
-	@Override
-	public void addOverlay(final Overlay overlay,
-			final ARListener<OverlayResponse> listener) {
-		
-		new AsyncTask<Void, Void, OverlayResponse>() {
-			@Override
-			protected OverlayResponse doInBackground(Void... params) {
-				return addOverlay(overlay);
-			}
-			@Override
-			protected void onPostExecute(OverlayResponse result) {
-				listener.handleResponse(result);
-			}
-		}.execute();
-
-
+		GenericAsyncTask<OverlayResponse> asyncTask = new GenericAsyncTask<OverlayResponse>(genericCallback);
+		asyncTask.execute();		
 	}
 
 	@Override
 	public void updateOverlay(final OverlayResponse overlayToUpdate, final Overlay newOverlay,
-			final ARListener<OverlayResponse> listener) {
-		new AsyncTask<Void, Void, OverlayResponse>() {
+			final ARListener<OverlayResponse> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<OverlayResponse> genericCallback = new GenericCallback<OverlayResponse>() {
 			@Override
-			protected OverlayResponse doInBackground(Void... params) {
+			public OverlayResponse toCall() {
 				return updateOverlay(overlayToUpdate, newOverlay);
 			}
-			@Override
-			protected void onPostExecute(OverlayResponse result) {
-				listener.handleResponse(result);
-			}
-		}.execute();
 
+			@Override
+			public void onComplete(OverlayResponse result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<OverlayResponse> asyncTask = new GenericAsyncTask<OverlayResponse>(genericCallback);
+		asyncTask.execute();
 	}
 
 	@Override
-	public void deleteOverlay(final OverlayResponse overlay, final ARListener<Boolean> listener) {
-		new AsyncTask<Void, Void, Boolean>() {
+	public void deleteOverlay(final OverlayResponse overlay, final ARListener<Boolean> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<Boolean> genericCallback = new GenericCallback<Boolean>() {
 			@Override
-			protected Boolean doInBackground(Void... params) {
+			public Boolean toCall() {
 				return deleteOverlay(overlay);
 			}
+
 			@Override
-			protected void onPostExecute(Boolean result) {
-				listener.handleResponse(result);
+			public void onComplete(Boolean result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
 
-
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<Boolean> asyncTask = new GenericAsyncTask<Boolean>(genericCallback);
+		asyncTask.execute();		
 	}
 
 	@Override
 	public void augmentImage(final InputStream image,
-			final ARListener<AugmentedData> listener) {
-		new AsyncTask<Void, Void, AugmentedData>() {
-
+			final ARListener<AugmentedData> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<AugmentedData> genericCallback = new GenericCallback<AugmentedData>() {
 			@Override
-			protected AugmentedData doInBackground(Void... arg0) {
+			public AugmentedData toCall() {
 				return augmentImage(image);
 			}
 
 			@Override
-			protected void onPostExecute(AugmentedData result) {
-				listener.handleResponse(result);
+			public void onComplete(AugmentedData result) {
+				listener.handleResponse(result);				
+			}
 
-			};
-
-		}.execute();
-
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<AugmentedData> asyncTask = new GenericAsyncTask<AugmentedData>(genericCallback);
+		asyncTask.execute();
 	}
 
 
 	@Override
-	public void delete(final ARListener<Boolean> listener) {
-		new AsyncTask<Void, Void, Boolean>() {
+	public void delete(final ARListener<Boolean> listener, final ARErrorListener onErrorListener) {
+		
+		GenericCallback<Boolean> genericCallback = new GenericCallback<Boolean>() {
 			@Override
-			protected Boolean doInBackground(Void... params) {
+			public Boolean toCall() {
 				return delete();
 			}
+
 			@Override
-			protected void onPostExecute(Boolean result) {
-				// TODO Auto-generated method stub
-				super.onPostExecute(result);
+			public void onComplete(Boolean result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
 
-
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<Boolean> asyncTask = new GenericAsyncTask<Boolean>(genericCallback);
+		asyncTask.execute();
 	}
 
 	/*
@@ -745,17 +819,29 @@ public class ARSiteImpl implements ARSite {
 	}
 	
 	@Override
-	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener) {
-		new AsyncTask<Void, Void, SiteInfoSummary>() {
+	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener, final ARErrorListener onErrorListener) {
+
+		GenericCallback<SiteInfoSummary> genericCallback = new GenericCallback<SiteInfoSummary>() {
 			@Override
-			protected SiteInfoSummary doInBackground(Void... params) {
+			public SiteInfoSummary toCall() {
 				return getSiteInfoSummary();
 			}
+
 			@Override
-			protected void onPostExecute(SiteInfoSummary result) {
-				listener.handleResponse(result);
+			public void onComplete(SiteInfoSummary result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<SiteInfoSummary> asyncTask = new GenericAsyncTask<SiteInfoSummary>(genericCallback);
+		asyncTask.execute();
 	}
 
 	@Override
@@ -785,17 +871,29 @@ public class ARSiteImpl implements ARSite {
 
 	@Override
 	public void getSiteOverlays(final String siteId,
-			final ARListener<List<ImageOverlayInfo>> listener) {
-		new AsyncTask<Void, Void, List<ImageOverlayInfo>>() {
+			final ARListener<List<ImageOverlayInfo>> listener, final ARErrorListener onErrorListener) {	
+		
+		GenericCallback<List<ImageOverlayInfo>> genericCallback = new GenericCallback<List<ImageOverlayInfo>>() {
 			@Override
-			protected List<ImageOverlayInfo> doInBackground(Void... params) {
+			public List<ImageOverlayInfo> toCall() {
 				return getSiteOverlays(siteId);
 			}
+
 			@Override
-			protected void onPostExecute(List<ImageOverlayInfo> result) {
-				listener.handleResponse(result);
+			public void onComplete(List<ImageOverlayInfo> result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();		
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<ImageOverlayInfo>> asyncTask = new GenericAsyncTask<List<ImageOverlayInfo>>(genericCallback);
+		asyncTask.execute();
 	}
 
 }

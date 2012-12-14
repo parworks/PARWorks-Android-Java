@@ -54,7 +54,7 @@ public class ExampleActivity extends Activity {
 
 			}
 
-		});
+		}, null);
 		mBaseImageView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -88,7 +88,7 @@ public class ExampleActivity extends Activity {
 
 			}
 
-		});
+		}, null);
 	}
 
 	public void gotBaseImages(List<BaseImageInfo> baseImages) {

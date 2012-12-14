@@ -66,7 +66,8 @@ public interface ARSite {
 	 * @param siteId
 	 * @param listener
 	 */
-	public void getSiteOverlays(String siteId, ARListener<List<ImageOverlayInfo>> listener);
+	public void getSiteOverlays(String siteId, ARListener<List<ImageOverlayInfo>> listener,
+			ARErrorListener onErrorListener);
 	
 	/**
 	 * Returns the site id connected with this site. Does not do any networking.
@@ -78,7 +79,8 @@ public interface ARSite {
 	/**
 	 * Asynchronously get the site's base images
 	 */
-	public void getBaseImages(ARListener<List<BaseImageInfo>> listener);
+	public void getBaseImages(ARListener<List<BaseImageInfo>> listener,
+			ARErrorListener onErrorListener);
 
 	/**
 	 * Makes an asynchronous server request to get site info
@@ -87,7 +89,7 @@ public interface ARSite {
 	 *            the callback to be used when the call completes. Will contain
 	 *            a SiteInfo object.
 	 */
-	public void getSiteInfo(ARListener<SiteInfo> listener);
+	public void getSiteInfo(ARListener<SiteInfo> listener, ARErrorListener onErrorListener);
 	
 	/**
 	 * Makes an asynchronous server request to get site info summary
@@ -96,7 +98,8 @@ public interface ARSite {
 	 *            the callback to be used when the call completes. Will contain
 	 *            a SiteInfo object.
 	 */
-	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener);
+	public void getSiteInfoSummary(final ARListener<SiteInfoSummary> listener,
+			ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously add a base image. Throws an ARException if the state is
@@ -113,7 +116,7 @@ public interface ARSite {
 	@RequiredState({ State.NEEDS_MORE_BASE_IMAGES,
 			State.NEEDS_BASE_IMAGE_PROCESSING })
 	public void addBaseImage(String filename, InputStream image,
-			ARListener<BaseImage> listener);
+			ARListener<BaseImage> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously begin processing the base images. Throws an ARException if
@@ -134,7 +137,7 @@ public interface ARSite {
 	 *            the callback to be used when the call completes providing the
 	 *            state of the site
 	 */
-	public void getState(ARListener<State> listener);
+	public void getState(ARListener<State> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously add an overlay. Throws an ARException if the state is not
@@ -147,7 +150,8 @@ public interface ARSite {
 	 *            overlay response which contains the new overlay id
 	 */
 	@RequiredState({ State.NEEDS_OVERLAYS, State.READY_TO_AUGMENT_IMAGES })
-	public void addOverlay(Overlay overlay, ARListener<OverlayResponse> listener);
+	public void addOverlay(Overlay overlay, ARListener<OverlayResponse> listener,
+			ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously update an overlay. Throws an ARException if the state is
@@ -163,7 +167,7 @@ public interface ARSite {
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void updateOverlay(OverlayResponse overlayToUpdate, Overlay newOverlay,
-			ARListener<OverlayResponse> listener);
+			ARListener<OverlayResponse> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously remove an overlay from the site. Throws an ARException if
@@ -176,7 +180,8 @@ public interface ARSite {
 	 *            overlay response which contains the new overlay id
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
-	public void deleteOverlay(OverlayResponse overlay, ARListener<Boolean> listener);
+	public void deleteOverlay(OverlayResponse overlay, ARListener<Boolean> listener,
+			ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously augment an image.
@@ -188,7 +193,7 @@ public interface ARSite {
 	 */
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void augmentImage(InputStream image,
-			ARListener<AugmentedData> listener);
+			ARListener<AugmentedData> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously delete the site.
@@ -197,7 +202,7 @@ public interface ARSite {
 	 *            callback to be used when the call completes providing a
 	 *            boolean indicating success or failure
 	 */
-	public void delete(ARListener<Boolean> listener);
+	public void delete(ARListener<Boolean> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Synchronously add a base image. Throws an ARException if the state is not
