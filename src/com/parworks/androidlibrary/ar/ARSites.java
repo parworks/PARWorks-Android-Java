@@ -20,8 +20,6 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 
-import android.os.AsyncTask;
-
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.BasicResponse;
@@ -82,7 +80,6 @@ public class ARSites {
 			final String channel, final ARListener<ARSite> listener, final ARErrorListener onErrorListener) {
 		
 		GenericCallback<ARSite> genericCallback = new GenericCallback<ARSite>() {
-
 			@Override
 			public ARSite toCall() {
 				return create(id, name, lon, lat, desc, feature, channel);
@@ -90,22 +87,17 @@ public class ARSites {
 
 			@Override
 			public void onComplete(ARSite result) {
-				listener.handleResponse(result);
-				
+				listener.handleResponse(result);				
 			}
 
 			@Override
 			public void onError(Exception error) {
-				onErrorListener.handleError(error);
-				
-			}
-			
+				onErrorListener.handleError(error);			
+			}			
 		};
 		
 		GenericAsyncTask<ARSite> asyncTask = new GenericAsyncTask<ARSite>(genericCallback);
 		asyncTask.execute();
-
-
 	}
 
 	/**
@@ -122,18 +114,27 @@ public class ARSites {
 	 *            completes
 	 */
 	public void create(final String id, final String desc,
-			final String channel, final ARListener<ARSite> listener) {
-		new AsyncTask<Void, Void, ARSite>() {
+			final String channel, final ARListener<ARSite> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<ARSite> genericCallback = new GenericCallback<ARSite>() {
 			@Override
-			protected ARSite doInBackground(Void... params) {
+			public ARSite toCall() {
 				return create(id, desc, channel);
 			}
-			@Override
-			protected void onPostExecute(ARSite result) {
-				listener.handleResponse(result);
-			}
-		}.execute();
 
+			@Override
+			public void onComplete(ARSite result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				onErrorListener.handleError(error);			
+			}			
+		};
+		
+		GenericAsyncTask<ARSite> asyncTask = new GenericAsyncTask<ARSite>(genericCallback);
+		asyncTask.execute();
 	}
 
 	/**
@@ -150,8 +151,8 @@ public class ARSites {
 	 *            the callback which provides a list of sites nearest the
 	 *            coordinates
 	 */
-	public void near(double lat, double lon, ARListener<List<ARSite>> sites) {
-		near(Double.toString(lat), Double.toString(lon), "", "", sites);
+	public void near(double lat, double lon, ARListener<List<ARSite>> sites, ARErrorListener onErrorListener) {
+		near(Double.toString(lat), Double.toString(lon), "", "", sites, onErrorListener);
 	}
 
 	/**
@@ -169,24 +170,34 @@ public class ARSites {
 	 *            the callback which provides a list of the nearest ARSites
 	 */
 	public void near(double lat, double lon, int max, double radius,
-			ARListener<List<ARSite>> sites) {
+			ARListener<List<ARSite>> sites, ARErrorListener onErrorListener) {
 		near(Double.toString(lat), Double.toString(lon), Integer.toString(max),
-				Double.toString(radius), sites);
+				Double.toString(radius), sites, onErrorListener);
 	}
 
 	private void near(final String lat, final String lon, final String max, final String radius,
-			final ARListener<List<ARSite>> sites) {
-		new AsyncTask<Void, Void, List<ARSite>>() {
+			final ARListener<List<ARSite>> listener, final ARErrorListener onErrorListener) {		
+		GenericCallback<List<ARSite>> genericCallback = new GenericCallback<List<ARSite>>() {
 			@Override
-			protected List<ARSite> doInBackground(Void... params) {
+			public List<ARSite> toCall() {
 				return near(lat, lon, max, radius);
 			}
-			@Override
-			protected void onPostExecute(List<ARSite> result) {
-				sites.handleResponse(result);
-			}
-		}.execute();
 
+			@Override
+			public void onComplete(List<ARSite> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<ARSite>> asyncTask = new GenericAsyncTask<List<ARSite>>(genericCallback);
+		asyncTask.execute();
 	}
 
 	/**
@@ -197,17 +208,29 @@ public class ARSites {
 	 * @param listener
 	 *            the callback which provides the ARSite once the call completes
 	 */
-	public void getExisting(final String id, final ARListener<ARSite> listener) {
-		new AsyncTask<Void, Void, ARSite>() {
+	public void getExisting(final String id, final ARListener<ARSite> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<ARSite> genericCallback = new GenericCallback<ARSite>() {
 			@Override
-			protected ARSite doInBackground(Void... params) {
+			public ARSite toCall() {
 				return getExisting(id);
 			}
+
 			@Override
-			protected void onPostExecute(ARSite result) {
-				listener.handleResponse(result);
+			public void onComplete(ARSite result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<ARSite> asyncTask = new GenericAsyncTask<ARSite>(genericCallback);
+		asyncTask.execute();
 	}
 	
 	/**
@@ -216,17 +239,28 @@ public class ARSites {
 	 * @param listener
 	 *            the callback which provides all the ARSite once the call completes
 	 */
-	public void getUserSites(final ARListener<List<ARSite>> listener) {
-		new AsyncTask<Void, Void, List<ARSite>>() {
+	public void getUserSites(final ARListener<List<ARSite>> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<List<ARSite>> genericCallback = new GenericCallback<List<ARSite>>() {
 			@Override
-			protected List<ARSite> doInBackground(Void... params) {
+			public List<ARSite> toCall() {
 				return getUserSites();
 			}
+
 			@Override
-			protected void onPostExecute(List<ARSite> result) {
-				listener.handleResponse(result);
+			public void onComplete(List<ARSite> result) {
+				listener.handleResponse(result);				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<ARSite>> asyncTask = new GenericAsyncTask<List<ARSite>>(genericCallback);
+		asyncTask.execute();
 	}
 	
 	/*
