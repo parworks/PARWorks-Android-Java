@@ -25,7 +25,7 @@ import com.parworks.androidlibrary.response.BaseImageInfo;
  */
 public class BitmapUtils {
 
-	private final int BITMAP_SAMPLE_SIZE = 8;
+	private final int BITMAP_SAMPLE_SIZE = 4;
 
 	/**
 	 * Gets an image from a url and returns it as an inputstream.
@@ -60,9 +60,9 @@ public class BitmapUtils {
 	 * @param in the inputstream containing a bitmap
 	 * @return the bitmap
 	 */
-	public Bitmap convertBitmap(InputStream in) {
+	public Bitmap convertBitmap(InputStream in, int sampleSize) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inSampleSize = BITMAP_SAMPLE_SIZE;
+		options.inSampleSize = sampleSize;
 		return BitmapFactory.decodeStream(in, null, options);
 	}
 	
@@ -73,8 +73,19 @@ public class BitmapUtils {
 	 */
 	public Bitmap getBitmap(String url) {
 		InputStream imageStream = getImageStream(url);
-		return convertBitmap(imageStream);
+		return convertBitmap(imageStream, BITMAP_SAMPLE_SIZE);
 	}
+	
+	/**
+	 * Takes a url and the sample size,
+	 * 		 and returns the bitmap at that url
+	 * @param url absolute url on the web
+	 * @return the bitmap
+	 */
+	public Bitmap getBitmap(String url, int sampleSize) {
+		InputStream imageStream = getImageStream(url);
+		return convertBitmap(imageStream, sampleSize);
+	}		
 
 	/**
 	 * Converts a bitmap into an inputstream
@@ -99,7 +110,7 @@ public class BitmapUtils {
 			@Override
 			protected Bitmap doInBackground(Void... arg0) {
 				InputStream imageStream = getImageStream(url);
-				return convertBitmap(imageStream);	
+				return convertBitmap(imageStream, BITMAP_SAMPLE_SIZE);	
 				
 			}
 
@@ -217,7 +228,7 @@ public class BitmapUtils {
 				for (int i = 0; i < numImagesToDownload; ++i) {
 					String url = getImageUrl(baseImages.get(i), size);
 					InputStream inputStream = getImageStream(url);
-					Bitmap bitMap = convertBitmap(inputStream);
+					Bitmap bitMap = convertBitmap(inputStream, BITMAP_SAMPLE_SIZE);
 					bitMaps.add(bitMap);
 
 				}

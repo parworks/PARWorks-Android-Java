@@ -24,6 +24,7 @@ public class BaseImage {
 	private final String baseImageId_;
 	private String contentSizeImagePath;
 	private String fullSizeImagePath;
+	private String contentSizeUrl;
 	private int width;
 	private int height;
 
@@ -66,5 +67,13 @@ public class BaseImage {
 
 	public void setFullSizeImagePath(String fullSizeImagePath) {
 		this.fullSizeImagePath = fullSizeImagePath;
+	}
+
+	public String getContentSizeUrl() {
+		return contentSizeUrl;
+	}
+
+	public void setContentSizeUrl(String contentSizeUrl) {
+		this.contentSizeUrl = contentSizeUrl;
 	}
 }
