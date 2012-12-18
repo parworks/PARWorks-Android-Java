@@ -81,6 +81,19 @@ public interface ARSite {
 	 */
 	public void getBaseImages(ARListener<List<BaseImageInfo>> listener,
 			ARErrorListener onErrorListener);
+	
+	/**
+	 * Get the site's registered base image
+	 * 
+	 * @param siteId
+	 */
+	public List<String> getRegisteredBaseImages(String siteId);
+	
+	/**
+	 * Asynchronously get the site's registered base images
+	 */
+	public void getRegisteredBaseImages(String siteId, ARListener<List<String>> listener, 
+			ARErrorListener onErrorListener);
 
 	/**
 	 * Makes an asynchronous server request to get site info

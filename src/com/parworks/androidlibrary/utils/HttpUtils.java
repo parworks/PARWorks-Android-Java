@@ -41,9 +41,8 @@ import com.parworks.androidlibrary.ar.ARException;
  */
 public class HttpUtils {
 	
-	public final static String PARWORKS_API_BASE_URL = "https://mars.parworksapi.com"; //"http://dev.parworksapi.com"; 
+	public final static String PARWORKS_API_BASE_URL = "https://mars.parworksapi.com"; 
 	public final static String PARWORKS_AUTH_API_BASE_URL = "https://portal.parworksapi.com";
-
 	
 	public final static String BASE_IMAGE_PROCESSING_STATE_PATH = "/ar/site/process/state";
 	public final static String INITIATE_BASE_IMAGE_PROCESSING_PATH = "/ar/site/process";
@@ -52,6 +51,7 @@ public class HttpUtils {
 	public final static String SAVE_OVERLAY_PATH = "/ar/site/overlay/save";
 	public final static String REMOVE_OVERLAY_PATH = "/ar/site/overlay/remove";
 	public final static String LIST_BASE_IMAGES_PATH = "/ar/site/image";
+	public final static String LIST_REGISTERED_BASE_IMAGES_PATH = "/ar/site/image/registered";
 	public final static String ADD_BASE_IMAGE_PATH = "/ar/site/image/add";
 	public final static String ADD_SITE_PATH = "/ar/site/add";
 	public final static String AUGMENT_IMAGE_RESULT_PATH = "/ar/image/augment/result";

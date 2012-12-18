@@ -38,6 +38,7 @@ import com.parworks.androidlibrary.response.GetSiteOverlaysResponse;
 import com.parworks.androidlibrary.response.ImageOverlayInfo;
 import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
 import com.parworks.androidlibrary.response.ListBaseImagesResponse;
+import com.parworks.androidlibrary.response.ListRegisteredBaseImagesResponse;
 import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
@@ -896,4 +897,54 @@ public class ARSiteImpl implements ARSite {
 		asyncTask.execute();
 	}
 
+	@Override
+	public List<String> getRegisteredBaseImages(String siteId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.LIST_REGISTERED_BASE_IMAGES_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		ListRegisteredBaseImagesResponse baseImagesResponse = responseHandler
+				.handleResponse(serverResponse, ListRegisteredBaseImagesResponse.class);
+
+		if (baseImagesResponse.getSuccess() == true) {
+			return baseImagesResponse.getImages();
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get base images. Perhaps the site no longer exists.");
+		}
+	}
+
+	@Override
+	public void getRegisteredBaseImages(final String siteId, final ARListener<List<String>> listener,
+			final ARErrorListener onErrorListener) {	
+		GenericCallback<List<String>> genericCallback = new GenericCallback<List<String>>() {
+			@Override
+			public List<String> toCall() {
+				return getRegisteredBaseImages(siteId);
+			}
+
+			@Override
+			public void onComplete(List<String> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
+		asyncTask.execute();
+	}
 }

@@ -25,6 +25,7 @@ public class BaseImage {
 	private String contentSizeImagePath;
 	private String fullSizeImagePath;
 	private String contentSizeUrl;
+	private boolean isRegisterred;
 	private int width;
 	private int height;
 
@@ -75,5 +76,13 @@ public class BaseImage {
 
 	public void setContentSizeUrl(String contentSizeUrl) {
 		this.contentSizeUrl = contentSizeUrl;
+	}
+
+	public boolean isRegisterred() {
+		return isRegisterred;
+	}
+
+	public void setRegisterred(boolean isRegisterred) {
+		this.isRegisterred = isRegisterred;
 	}
 }
