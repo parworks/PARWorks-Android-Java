@@ -95,17 +95,31 @@ public class ARAuth {
 	public void createAccount(final String email, final String password,
 			final String firstname, final String lastname, final String address1, final String address2,
 			final String city, final String state, final String country, 
-			final String zipcode, final ARListener<ApiKeys> listener) {
-		new AsyncTask<Void, Void, ApiKeys>() {
+			final String zipcode, final ARListener<ApiKeys> listener, final ARErrorListener onErrorListener) {
+		
+		
+		GenericCallback<ApiKeys> genericCallback = new GenericCallback<ApiKeys>() {
+
 			@Override
-			protected ApiKeys doInBackground(Void... params) {
+			public ApiKeys toCall() {
 				return createAccount(email, password, firstname, lastname, address1, address2, city, state, country, zipcode);
 			}
+
 			@Override
-			protected void onPostExecute(ApiKeys result) {
-				listener.handleResponse(result);
+			public void onComplete(ApiKeys keys) {
+				listener.handleResponse(keys);
+				
 			}
-		}.execute();
+
+			@Override
+			public void onError(Exception error) {
+				onErrorListener.handleError(error);
+				
+			}
+			
+		};
+		GenericAsyncTask<ApiKeys> asyncTask = new GenericAsyncTask<ApiKeys>(genericCallback);
+		asyncTask.execute();
 	}
 	
 	/**
