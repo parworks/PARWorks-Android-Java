@@ -40,6 +40,8 @@ import com.parworks.androidlibrary.response.InitiateBaseImageProcessingResponse;
 import com.parworks.androidlibrary.response.ListBaseImagesResponse;
 import com.parworks.androidlibrary.response.ListRegisteredBaseImagesResponse;
 import com.parworks.androidlibrary.response.OverlayAugmentResponse;
+import com.parworks.androidlibrary.response.OverlayStatus;
+import com.parworks.androidlibrary.response.OverlayStatusResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
@@ -492,7 +494,18 @@ public class ARSiteImpl implements ARSite {
 				.handleResponse(serverResponse, AddSaveOverlayResponse.class);
 
 		if (addOverlayResponse.getSuccess() == true) {
-			return new OverlayResponse(addOverlayResponse.getId());
+			
+			OverlayStatus overlayStatus = null;
+			while (overlayStatus == null || overlayStatus.getState().equalsIgnoreCase("PROCESSING")) {
+				overlayStatus = getOverlayStatus(addOverlayResponse.getId());
+			}
+
+			if (overlayStatus.getState().equalsIgnoreCase("PROCESSED")) {
+				return new OverlayResponse(addOverlayResponse.getId());	
+			} else {
+				throw new ARException(
+						"Failed to add the overlay. Please try again.");
+			}			
 		} else {
 			throw new ARException(
 					"Successfully communicated with the server, but failed to add the overlay. Perhaps the site no longer exists, or there was a problem with the overlay.");
@@ -945,6 +958,59 @@ public class ARSiteImpl implements ARSite {
 		};
 		
 		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
+		asyncTask.execute();
+	}
+
+	@Override
+	public OverlayStatus getOverlayStatus(String overlayId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+		params.put("id", overlayId);		
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.GET_OVERLAY_STATUS, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		OverlayStatusResponse overlayStatusResponse = responseHandler
+				.handleResponse(serverResponse, OverlayStatusResponse.class);
+
+		if (overlayStatusResponse.getSuccess()) {
+			return overlayStatusResponse.getOverlay();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public void getOverlayStatus(final String overlayId,
+			final ARListener<OverlayStatus> listener,
+			final ARErrorListener onErrorListener) {
+		
+		GenericCallback<OverlayStatus> genericCallback = new GenericCallback<OverlayStatus>() {
+			@Override
+			public OverlayStatus toCall() {
+				return getOverlayStatus(overlayId);
+			}
+
+			@Override
+			public void onComplete(OverlayStatus result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<OverlayStatus> asyncTask = new GenericAsyncTask<OverlayStatus>(genericCallback);
 		asyncTask.execute();
 	}
 }

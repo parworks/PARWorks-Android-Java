@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.ImageOverlayInfo;
+import com.parworks.androidlibrary.response.OverlayStatus;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
 
@@ -53,6 +54,25 @@ public interface ARSite {
 		INDOOR, MACHINE, DEFAULT, OUTDOOR, HIGH_ACCURACY, MEDIUM_ACCURACY, HIGH_ROBUSTNESS, MEDIUM_ROBUSTNESS, FASTEST, TEXTURED
 	}
 
+	/**
+	 * Get overlay status
+	 * 
+	 * @param overlayId
+	 * @return
+	 */
+	public OverlayStatus getOverlayStatus(String overlayId);
+	
+	/** 
+	 * Asynchronously get overlay status
+	 * 
+	 * @param overlayId
+	 * @param listener
+	 * @param onErrorListener
+	 * @return
+	 */
+	public void getOverlayStatus(String overlayId, 
+			ARListener<OverlayStatus> listener, ARErrorListener onErrorListener);
+	
 	/**
 	 * Returns the overlays associated with the given site
 	 * 
