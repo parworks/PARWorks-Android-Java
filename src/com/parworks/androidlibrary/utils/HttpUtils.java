@@ -56,6 +56,7 @@ public class HttpUtils {
 	public final static String ADD_BASE_IMAGE_PATH = "/ar/site/image/add";
 	public final static String ADD_SITE_PATH = "/ar/site/add";
 	public final static String AUGMENT_IMAGE_RESULT_PATH = "/ar/image/augment/result";
+	public final static String AUGMENT_IMAGE_GROUP_PATH = "/ar/image/augment/group";
 	public final static String AUGMENT_IMAGE_WITH_PROXIMITY_SEARCH_PATH = "/ar/image/augment/geo";
 	public final static String AUGMENT_IMAGE_PATH = "/ar/image/augment";
 	public final static String GET_SITE_INFO_PATH = "/ar/site/info";

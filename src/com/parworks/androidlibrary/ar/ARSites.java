@@ -13,19 +13,30 @@
  */
 package com.parworks.androidlibrary.ar;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
+import com.parworks.androidlibrary.response.AugmentImageGroupResponse;
+import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
 import com.parworks.androidlibrary.response.ListUserSitesResponse;
 import com.parworks.androidlibrary.response.NearbySitesResponse;
+import com.parworks.androidlibrary.response.OverlayAugmentResponse;
+import com.parworks.androidlibrary.response.SiteImageBundle;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.utils.GenericAsyncTask;
 import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
@@ -52,6 +63,151 @@ public class ARSites {
 		HMacShaPasswordEncoder encoder = new HMacShaPasswordEncoder(256, true);
 		mTime = "" + System.currentTimeMillis();
 		mSignature = encoder.encodePassword(secretKey, mTime);
+	}
+	
+	/**
+	 * Synchronously augment an image towards a list of sites
+	 * 
+	 * @param image
+	 *            an inputstream containing the image
+	 * @return the augmented data
+	 */
+	public List<AugmentedData> augmentImageGroup(List<String> sites, InputStream image) {
+		Map<String, String> params = new HashMap<String, String>();
+		
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(image,
+				"image");
+		imageEntity.addPart("image", imageInputStreamBody);
+		
+		for(String siteId : sites) {
+			try {
+				imageEntity.addPart("site", new StringBody(siteId));
+			} catch (UnsupportedEncodingException e) {
+				throw new ARException(e);
+			}
+		}
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doPost(
+				HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.AUGMENT_IMAGE_GROUP_PATH,
+				imageEntity, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AugmentImageGroupResponse augmentImageGroupResponse = responseHandler
+				.handleResponse(serverResponse, AugmentImageGroupResponse.class);
+		
+		if (augmentImageGroupResponse.getSuccess() == false) {
+			throw new ARException(
+					"Successfully communicated with the server, failed to augment the image. Perhaps the site does not exist or has no overlays.");
+		}
+		
+		List<AugmentedData> result = new ArrayList<AugmentedData>();
+		for(SiteImageBundle bundle : augmentImageGroupResponse.getCandidates()) {
+			AugmentedData augmentedImage = null;
+			while (augmentedImage == null) {
+				augmentedImage = getAugmentResult(bundle.getSite(), bundle.getImgId());
+			}
+			result.add(augmentedImage);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Synchronously augment an image towards a list of sites
+	 * 
+	 * @param image
+	 *            an inputstream containing the image
+	 * @return the augmented data
+	 */
+	public void augmentImageGroup(final List<String> sites, final InputStream image, 
+			final ARListener<List<AugmentedData>> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<List<AugmentedData>> genericCallback = new GenericCallback<List<AugmentedData>>() {
+			@Override
+			public List<AugmentedData> toCall() {
+				return augmentImageGroup(sites, image);
+			}
+
+			@Override
+			public void onComplete(List<AugmentedData> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}
+		};
+		
+		GenericAsyncTask<List<AugmentedData>> asyncTask = new GenericAsyncTask<List<AugmentedData>>(genericCallback);
+		asyncTask.execute();
+	}
+	
+	public AugmentedData getAugmentResult(String mId, String imgId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("imgId", imgId);
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.AUGMENT_IMAGE_RESULT_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		if (serverResponse.getStatusLine().getStatusCode() == 204) {
+			return null;
+		}
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AugmentImageResultResponse result = responseHandler.handleResponse(
+				serverResponse, AugmentImageResultResponse.class);
+
+		return convertAugmentResultResponse(imgId, result);
+	}
+	
+	private AugmentedData convertAugmentResultResponse(String imgId,
+			AugmentImageResultResponse result) {
+		List<OverlayAugmentResponse> overlayResponses = result.getOverlays();
+		List<Overlay> overlays = new ArrayList<Overlay>();
+
+		for (OverlayAugmentResponse overlayResponse : overlayResponses) {
+			overlays.add(makeOverlay(overlayResponse, imgId));
+		}
+
+		AugmentedData augmentedData = new AugmentedData(result.getFov(),
+				result.getFocalLength(), result.getScore(),
+				result.isLocalization(), overlays);
+		return augmentedData;
+	}
+	
+	private Overlay makeOverlay(OverlayAugmentResponse overlayResponse,
+			String imgId) {
+		Overlay overlay = new OverlayImpl(imgId, overlayResponse.getName(),
+				overlayResponse.getDescription(),
+				parseVertices(overlayResponse.getVertices()));
+		return overlay;
+
+	}
+	
+	private List<Vertex> parseVertices(String serverOutput) {
+		String[] points = serverOutput.split(",");
+
+		List<Vertex> vertices = new ArrayList<Vertex>();
+		for (int i = 0; i < points.length; i += 3) {
+			float xCoord = Float.parseFloat(points[i]);
+			float yCoord = Float.parseFloat(points[i + 1]);
+			float zCoord = Float.parseFloat(points[i + 2]);
+			vertices.add(new Vertex(xCoord, yCoord, zCoord));
+		}
+		return vertices;
 	}
 
 	/**
