@@ -496,7 +496,8 @@ public class ARSiteImpl implements ARSite {
 		if (addOverlayResponse.getSuccess() == true) {
 			
 			OverlayStatus overlayStatus = null;
-			while (overlayStatus == null || overlayStatus.getState().equalsIgnoreCase("PROCESSING")) {
+			while (overlayStatus == null || overlayStatus.getState() == null
+					|| overlayStatus.getState().equalsIgnoreCase("PROCESSING")) {
 				overlayStatus = getOverlayStatus(addOverlayResponse.getId());
 			}
 
