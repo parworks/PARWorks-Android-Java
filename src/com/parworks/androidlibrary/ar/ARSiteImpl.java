@@ -493,12 +493,12 @@ public class ARSiteImpl implements ARSite {
 		AddSaveOverlayResponse addOverlayResponse = responseHandler
 				.handleResponse(serverResponse, AddSaveOverlayResponse.class);
 
-		if (addOverlayResponse.getSuccess() == true) {
-			
+		if (addOverlayResponse.getSuccess() == true) {			
 			OverlayStatus overlayStatus = null;
 			while (overlayStatus == null || overlayStatus.getState() == null
-					|| overlayStatus.getState().equalsIgnoreCase("PROCESSING")) {
-				overlayStatus = getOverlayStatus(addOverlayResponse.getId());
+					|| overlayStatus.getState().equalsIgnoreCase("PROCESSING")
+					|| overlayStatus.getState().equalsIgnoreCase("NOT_PROCESSED")) {
+				overlayStatus = getOverlayStatus(addOverlayResponse.getId());				
 			}
 
 			if (overlayStatus.getState().equalsIgnoreCase("PROCESSED")) {
