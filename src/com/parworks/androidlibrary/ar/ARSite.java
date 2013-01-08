@@ -236,6 +236,14 @@ public interface ARSite {
 	 *            boolean indicating success or failure
 	 */
 	public void delete(ARListener<Boolean> listener, ARErrorListener onErrorListener);
+	
+	/**
+	 * Asynchronously update the site info
+	 * @param info the new site info
+	 * @param listener
+	 * @param onErrorListener
+	 */
+	public void updateInfo(SiteInfo info, ARListener<Boolean> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Synchronously add a base image. Throws an ARException if the state is not
@@ -338,5 +346,12 @@ public interface ARSite {
 	 * @return
 	 */
 	public List<BaseImageInfo> getBaseImages();
+	
+	/**
+	 * Synchronously update site info
+	 * @param info The site info
+	 * @return True on success
+	 */
+	public Boolean updateInfo(SiteInfo info);
 
 }

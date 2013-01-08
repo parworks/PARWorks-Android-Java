@@ -1014,4 +1014,54 @@ public class ARSiteImpl implements ARSite {
 		GenericAsyncTask<OverlayStatus> asyncTask = new GenericAsyncTask<OverlayStatus>(genericCallback);
 		asyncTask.execute();
 	}
+	
+	@Override
+	public Boolean updateInfo(SiteInfo info) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("id", info.getId());
+		parameterMap.put("name", info.getName());
+		parameterMap.put("lon", info.getLon());
+		parameterMap.put("lat", info.getLat());
+		parameterMap.put("description", info.getDescription());
+		parameterMap.put("feature", info.getFeatureType());
+		parameterMap.put("channel", info.getChannel());
+		
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.UPDATE_SITE_PATH,parameterMap);
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine().getStatusCode());
+		
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		BasicResponse updateResponse = responseHandler.handleResponse(serverResponse, BasicResponse.class);
+		
+		return updateResponse.getSuccess();
+	}
+	@Override
+	public void updateInfo(final SiteInfo info, final ARListener<Boolean> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<Boolean> genericCallback = new GenericCallback<Boolean>() {
+
+			@Override
+			public Boolean toCall() {
+				return updateInfo(info);
+			}
+
+			@Override
+			public void onComplete(Boolean result) {
+				listener.handleResponse(result);
+				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if(onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+				
+			}
+			
+		};
+		GenericAsyncTask<Boolean> asyncTask = new GenericAsyncTask<Boolean>(genericCallback);
+		asyncTask.execute();
+		
+	}
 }

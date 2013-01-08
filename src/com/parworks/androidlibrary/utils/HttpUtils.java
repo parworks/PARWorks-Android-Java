@@ -67,6 +67,7 @@ public class HttpUtils {
 	public final static String CREATE_USER_PATH = "/ar/mars/user/account/create";
 	public final static String RETRIEVE_KEY_PATH = "/ar/mars/user/account/getkey";
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
+	public final static String UPDATE_SITE_PATH = "/ar/site/update";
 	
 	
 	String mTime;

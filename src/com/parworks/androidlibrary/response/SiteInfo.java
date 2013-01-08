@@ -32,8 +32,8 @@ public class SiteInfo {
 	private String mDescription;
 	private String mGeoHash;
 	private BaseImageState mSiteState;
-	private double mLatitude;
-	private double mLongitude;
+	private String mLatitude;
+	private String mLongitude;
 	private OverlayState mBimState;
 	private String mFeatureType;
 	private String mS3Bucket;
@@ -55,7 +55,7 @@ public class SiteInfo {
 	}
 
 	public SiteInfo(String name, String id, String channel, String description,
-			String geoHash, BaseImageState siteState, double lat, double lon,
+			String geoHash, BaseImageState siteState, String lat, String lon,
 			OverlayState bimState, String featureType, String s3Bucket,
 			String lastModificationTime) {
 		mName = name;
@@ -128,19 +128,19 @@ public class SiteInfo {
 		this.mSiteState = siteState;
 	}
 
-	public double getLat() {
+	public String getLat() {
 		return mLatitude;
 	}
 
-	public void setLat(double lat) {
+	public void setLat(String lat) {
 		this.mLatitude = lat;
 	}
 
-	public double getLon() {
+	public String getLon() {
 		return mLongitude;
 	}
 
-	public void setLon(double lon) {
+	public void setLon(String lon) {
 		this.mLongitude = lon;
 	}
 
@@ -198,6 +198,49 @@ public class SiteInfo {
 
 	public void setProcessingProfile(String processingProfile) {
 		mProcessingProfile = processingProfile;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o == null) {
+			return false;
+		}
+		SiteInfo otherInfo = (SiteInfo)o;
+		if(!mId.equals(otherInfo.getId())) {
+			return false;
+		} else if (!mName.equals(otherInfo.getName())){
+			return false;
+//		} else if (!mBimState.equals(otherInfo.getBimState())) {
+//			return false;
+//		} else if (!mChannel.equals(otherInfo.getChannel())) {
+//			return false;
+		} else if (!mDescription.equals(otherInfo.getDescription()) ) {
+			return false;
+		} else if (!mFeatureDescriptorType.equals(otherInfo.getFeatureDescriptorType()) ) {
+			return false;
+//		} else if (!mFeatureType.equals(otherInfo.getFeatureType()) ) {
+//			return false;
+//		} else if (!mGeoHash.equals(otherInfo.getGeoHash()) ) {
+//			return false;
+//		} else if (!mLastModificationTime.equals(otherInfo.getLastModificationTime()) ) {
+//			return false;
+		} else if (!mLatitude.equals(otherInfo.getLat())) {
+			return false;
+		} else if (!mLongitude.equals(otherInfo.getLon())) {
+			return false;
+//		} else if (!mOwnerApiKey.equals(otherInfo.getOwnerApiKey())) {
+//			return false;
+		} else if (!mProcessingProfile.equals(otherInfo.getProcessingProfile()) ) {
+			return false;
+//		} else if (!mS3Bucket.equals(otherInfo.getS3Bucket())) {
+//			return false;
+//		} else if (!mSiteState.equals(otherInfo.getSiteState())) {
+//			return false;
+//		} else if (! (mTotalImages == otherInfo.getTotalImages())) {
+//			return false;
+		} else {
+			return true;
+		}
 	}
 
 }
