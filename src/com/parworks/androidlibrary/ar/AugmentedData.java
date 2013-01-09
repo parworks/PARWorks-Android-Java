@@ -13,8 +13,14 @@
  */
 package com.parworks.androidlibrary.ar;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Returned after augmenting an image. Contains overlay information for a
@@ -25,6 +31,8 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class AugmentedData implements Serializable {
+	
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	private String mFov;
 	private String mFocalLength;
@@ -81,4 +89,23 @@ public class AugmentedData implements Serializable {
 		this.mLocalization = localization;
 	}
 
+	public String toString() {
+		String res = null;
+		try {
+			res = mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
+	public static AugmentedData readDataFromString(String input) {
+		AugmentedData data = null;
+		try {
+			data = mapper.readValue(input, AugmentedData.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
 }
