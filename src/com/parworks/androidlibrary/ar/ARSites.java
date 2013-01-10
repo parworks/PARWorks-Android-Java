@@ -13,7 +13,6 @@
  */
 package com.parworks.androidlibrary.ar;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -72,7 +70,7 @@ public class ARSites {
 	 *            an inputstream containing the image
 	 * @return the augmented data
 	 */
-	public List<AugmentedData> augmentImageGroup(List<String> sites, InputStream image) {
+	public AugmentedData augmentImageGroup(List<String> sites, InputStream image) {
 		Map<String, String> params = new HashMap<String, String>();
 		
 		MultipartEntity imageEntity = new MultipartEntity();
@@ -114,7 +112,19 @@ public class ARSites {
 			result.add(augmentedImage);
 		}
 		
-		return result;
+		// combine different results
+		AugmentedData finalData = null;
+		for(AugmentedData data : result) {
+			if (data.isLocalization()) {
+				if (finalData == null) {
+					finalData = data;
+				} else {
+					finalData.getOverlays().addAll(data.getOverlays());
+				}
+			}
+		}
+		
+		return finalData;
 	}
 	
 	/**
@@ -125,15 +135,15 @@ public class ARSites {
 	 * @return the augmented data
 	 */
 	public void augmentImageGroup(final List<String> sites, final InputStream image, 
-			final ARListener<List<AugmentedData>> listener, final ARErrorListener onErrorListener) {
-		GenericCallback<List<AugmentedData>> genericCallback = new GenericCallback<List<AugmentedData>>() {
+			final ARListener<AugmentedData> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<AugmentedData> genericCallback = new GenericCallback<AugmentedData>() {
 			@Override
-			public List<AugmentedData> toCall() {
+			public AugmentedData toCall() {
 				return augmentImageGroup(sites, image);
 			}
 
 			@Override
-			public void onComplete(List<AugmentedData> result) {
+			public void onComplete(AugmentedData result) {
 				listener.handleResponse(result);				
 			}
 
@@ -145,7 +155,7 @@ public class ARSites {
 			}
 		};
 		
-		GenericAsyncTask<List<AugmentedData>> asyncTask = new GenericAsyncTask<List<AugmentedData>>(genericCallback);
+		GenericAsyncTask<AugmentedData> asyncTask = new GenericAsyncTask<AugmentedData>(genericCallback);
 		asyncTask.execute();
 	}
 	
