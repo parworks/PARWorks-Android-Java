@@ -1,0 +1,71 @@
+package com.parworks.androidlibrary.response;
+
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@SuppressWarnings("serial")
+public class OverlayCover implements Serializable {
+	
+	public enum OverlayCoverType {
+		IMAGE, DEFAULT
+	}
+	
+	private String type = "default";
+	private int transparency;
+	private String color;
+	private String provider;
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public int getTransparency() {
+		return transparency;
+	}
+	
+	public void setTransparency(int transparency) {
+		this.transparency = transparency;
+	}
+	
+	public String getProvider() {
+		return provider;
+	}
+	
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+	
+	public String getColor() {
+		return color;
+	}
+	
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
+	@JsonIgnore
+	public boolean isDefault() {
+		if (type != null && type.equalsIgnoreCase("default")) {
+			return true;
+		}
+		return false;
+	}
+	
+	@JsonIgnore
+	public boolean isImage() {
+		if (type != null && type.equalsIgnoreCase("image")) {
+			return true;
+		}
+		return false;
+	}
+	
+	@JsonIgnore
+	public OverlayCoverType getOverlayCoverType() {
+		return OverlayCoverType.valueOf(this.getType().toUpperCase());
+	}
+}

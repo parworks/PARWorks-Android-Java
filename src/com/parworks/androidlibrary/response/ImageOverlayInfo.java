@@ -1,10 +1,16 @@
 package com.parworks.androidlibrary.response;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("serial")
 public class ImageOverlayInfo implements Serializable {
+
 	private String site;
 	private String content;
 	private String id;
@@ -13,6 +19,15 @@ public class ImageOverlayInfo implements Serializable {
 	private String name;
 	private List<OverlayPoint> points;
 
+	/** 
+	 * The configuration object by parsing the content value.
+	 * 
+	 * The reason to not replace content String with this object
+	 * is to better handle old overlay content without the JSON
+	 * format.
+	 */
+	private OverlayConfiguration configuration;
+	
 	public String getSite() {
 		return site;
 	}
@@ -27,6 +42,9 @@ public class ImageOverlayInfo implements Serializable {
 
 	public void setContent(String content) {
 		this.content = content;
+		
+		// parse the content whenever this is set
+		parseOverlayContent();
 	}
 
 	public String getId() {
@@ -67,5 +85,28 @@ public class ImageOverlayInfo implements Serializable {
 
 	public void setPoints(List<OverlayPoint> points) {
 		this.points = points;
+	}
+
+	public OverlayConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	private void parseOverlayContent() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		try {
+			this.configuration = mapper.readValue(content, OverlayConfiguration.class);
+		} catch (IOException e) {
+			// when failing to parse the overlay content,
+			// generate an empty object and use default for everything
+			this.configuration = new OverlayConfiguration();
+			try {
+				String test = mapper.writeValueAsString(this.configuration);
+				System.out.println(test);
+			} catch (JsonProcessingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 }
