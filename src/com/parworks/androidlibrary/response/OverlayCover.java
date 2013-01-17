@@ -2,13 +2,14 @@ package com.parworks.androidlibrary.response;
 
 import java.io.Serializable;
 
+import android.annotation.SuppressLint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @SuppressWarnings("serial")
 public class OverlayCover implements Serializable {
 	
 	public enum OverlayCoverType {
-		IMAGE, DEFAULT
+		IMAGE, DEFAULT, HIDE
 	}
 	
 	private String type = "default";
@@ -64,8 +65,16 @@ public class OverlayCover implements Serializable {
 		return false;
 	}
 	
+	@SuppressLint("DefaultLocale")
 	@JsonIgnore
 	public OverlayCoverType getOverlayCoverType() {
-		return OverlayCoverType.valueOf(this.getType().toUpperCase());
+		OverlayCoverType res = null;
+		try {
+			res = OverlayCoverType.valueOf(this.getType().toUpperCase());
+		} catch (Exception e) {
+			// make sure to return default in unexpected error state
+			res = OverlayCoverType.DEFAULT;
+		}
+		return res;
 	}
 }
