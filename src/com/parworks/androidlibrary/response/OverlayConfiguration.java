@@ -1,6 +1,16 @@
 package com.parworks.androidlibrary.response;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
+
+import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.parworks.androidlibrary.ar.ARException;
 
 @SuppressWarnings("serial")
 public class OverlayConfiguration implements Serializable {
@@ -40,5 +50,21 @@ public class OverlayConfiguration implements Serializable {
 	
 	public void setCover(OverlayCover cover) {
 		this.cover = cover;
+	}
+	
+	public String toJson() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			objectMapper.writeValue(outputStream, OverlayConfiguration.this);
+		} catch (JsonGenerationException e) {
+			throw new ARException(e.getMessage(),e);
+		} catch (JsonMappingException e) {
+			throw new ARException(e.getMessage(),e);
+		} catch (IOException e) {
+			throw new ARException(e.getMessage(),e);
+		}
+		return outputStream.toString();
+		
 	}
 }
