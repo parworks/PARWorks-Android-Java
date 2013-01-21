@@ -471,16 +471,16 @@ public class ARSiteImpl implements ARSite {
 		params.put("content", overlay.getDescription());
 
 		List<Vertex> vertices = overlay.getVertices();
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntity entity = getEntityFromVertices(vertices);
 
-		for (Vertex currentVertex : vertices) {
-			try {
-				entity.addPart("v", new StringBody((int) currentVertex.getxCoord()
-						+ "," + (int) currentVertex.getyCoord()));
-			} catch (UnsupportedEncodingException e) {
-				throw new ARException(e);
-			}
-		}
+//		for (Vertex currentVertex : vertices) {
+//			try {
+//				entity.addPart("v", new StringBody((int) currentVertex.getxCoord()
+//						+ "," + (int) currentVertex.getyCoord()));
+//			} catch (UnsupportedEncodingException e) {
+//				throw new ARException(e);
+//			}
+//		}
 
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 		HttpResponse serverResponse = httpUtils.doPost(
@@ -512,6 +512,20 @@ public class ARSiteImpl implements ARSite {
 					"Successfully communicated with the server, but failed to add the overlay. Perhaps the site no longer exists, or there was a problem with the overlay.");
 		}
 	}
+	
+	private MultipartEntity getEntityFromVertices(List<Vertex> vertices) {
+		MultipartEntity entity = new MultipartEntity();
+
+		for (Vertex currentVertex : vertices) {
+			try {
+				entity.addPart("v", new StringBody((int) currentVertex.getxCoord()
+						+ "," + (int) currentVertex.getyCoord()));
+			} catch (UnsupportedEncodingException e) {
+				throw new ARException(e);
+			}
+		}
+		return entity;
+	}
 
 	@Override
 	public OverlayResponse updateOverlay(OverlayResponse overlayToUpdate,
@@ -525,16 +539,16 @@ public class ARSiteImpl implements ARSite {
 		params.put("content", newOverlay.getDescription());
 
 		List<Vertex> vertices = newOverlay.getVertices();
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntity entity = getEntityFromVertices(vertices);
 
-		for (Vertex currentVertex : vertices) {
-			try {
-				entity.addPart("v", new StringBody(currentVertex.getxCoord()
-						+ "," + currentVertex.getyCoord()));
-			} catch (UnsupportedEncodingException e) {
-				throw new ARException(e);
-			}
-		}
+//		for (Vertex currentVertex : vertices) {
+//			try {
+//				entity.addPart("v", new StringBody((int) currentVertex.getxCoord()
+//						+ "," + (int) currentVertex.getyCoord()));
+//			} catch (UnsupportedEncodingException e) {
+//				throw new ARException(e);
+//			}
+//		}
 
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 		HttpResponse serverResponse = httpUtils.doPost(
@@ -552,7 +566,7 @@ public class ARSiteImpl implements ARSite {
 			return new OverlayResponse(saveOverlayResponse.getId());
 		} else {
 			throw new ARException(
-					"Successfully communicated with the server, but failed to update the overlay. Perhaps the site no longer exists, or there was a problem with the overlay.");
+					"Successfully communicated with the server, but failed to update the overlay. " + saveOverlayResponse.getReason());
 		}
 	}
 

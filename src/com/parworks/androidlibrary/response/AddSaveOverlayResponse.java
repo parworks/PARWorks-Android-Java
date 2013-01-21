@@ -17,6 +17,7 @@ public class AddSaveOverlayResponse {
 	
 	private boolean mSuccess;
 	private String mId;
+	private String reason;
 	
 	public void setSuccess(boolean success) {
 		mSuccess = success;
@@ -32,6 +33,14 @@ public class AddSaveOverlayResponse {
 	
 	public String getId() {
 		return mId;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 }
