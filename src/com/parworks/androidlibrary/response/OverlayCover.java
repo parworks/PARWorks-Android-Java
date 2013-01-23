@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OverlayCover implements Serializable {
 	
 	public enum OverlayCoverType {
-		IMAGE, HIDE
+		IMAGE, REGULAR, HIDE
 	}
 	
 	private String type = "default";
@@ -73,7 +73,7 @@ public class OverlayCover implements Serializable {
 			res = OverlayCoverType.valueOf(this.getType().toUpperCase());
 		} catch (Exception e) {
 			// make sure to return default in unexpected error state
-			res = OverlayCoverType.DEFAULT;
+			res = OverlayCoverType.REGULAR;
 		}
 		return res;
 	}
