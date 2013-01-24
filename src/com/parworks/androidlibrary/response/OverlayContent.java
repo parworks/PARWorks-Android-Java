@@ -12,7 +12,7 @@ public class OverlayContent implements Serializable {
 	}
 	
 	public enum OverlaySize {
-		SMALL, MEDIUM, LARGE, FULLSCREEN
+		SMALL, MEDIUM, LARGE, FULL_SCREEN
 	}
 	
 	private String type = "text";
