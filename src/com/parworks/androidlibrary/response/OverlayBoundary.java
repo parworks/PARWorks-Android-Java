@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OverlayBoundary implements Serializable {
 	
 	public enum OverlayBoundaryType {
-		DEFAULT, DASHED, SOLID
+		DASHED, SOLID
 	}
 	
 	private String type = "default";
@@ -40,7 +40,7 @@ public class OverlayBoundary implements Serializable {
 			res = OverlayBoundaryType.valueOf(this.getType().toUpperCase());
 		} catch (Exception e) {
 			// make sure to return default in unexpected error state
-			res = OverlayBoundaryType.DEFAULT;
+			res = OverlayBoundaryType.DASHED;
 		}
 		return res;
 	}
