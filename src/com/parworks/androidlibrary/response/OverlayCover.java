@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OverlayCover implements Serializable {
 	
 	public enum OverlayCoverType {
-		IMAGE, REGULAR, HIDE
+		REGULAR,IMAGE, HIDE
 	}
 	
 	private String type = "default";
