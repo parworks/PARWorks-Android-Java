@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OverlayBoundary implements Serializable {
 	
 	public enum OverlayBoundaryType {
-		DASHED, SOLID
+		DASHED, SOLID, HIDE
 	}
 	
-	private String type = "default";
+	private String type = "DASHED";
 	private String color;
 	
 	public String getType() {
