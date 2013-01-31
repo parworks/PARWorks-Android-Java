@@ -68,6 +68,8 @@ public class HttpUtils {
 	public final static String RETRIEVE_KEY_PATH = "/ar/mars/user/account/getkey";
 	public final static String HEALTH_CHECK_PATH = "/ar/ping";
 	public final static String UPDATE_SITE_PATH = "/ar/site/update";
+	public final static String ADD_COMMENT_PATH = "/ar/site/comment/add";
+	public final static String LIST_SITE_COMMENT_PATH = "/ar/site/comment/list";
 	
 	
 	String mTime;

@@ -42,6 +42,9 @@ import com.parworks.androidlibrary.response.ListRegisteredBaseImagesResponse;
 import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.OverlayStatus;
 import com.parworks.androidlibrary.response.OverlayStatusResponse;
+import com.parworks.androidlibrary.response.SimpleResponse;
+import com.parworks.androidlibrary.response.SiteComment;
+import com.parworks.androidlibrary.response.SiteCommentsResponse;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
@@ -1058,7 +1061,117 @@ public class ARSiteImpl implements ARSite {
 			
 		};
 		GenericAsyncTask<Boolean> asyncTask = new GenericAsyncTask<Boolean>(genericCallback);
-		asyncTask.execute();
+		asyncTask.execute();		
+	}
+
+	@Override
+	public void addComment(String userId, String userName, String comment) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+		params.put("comment", comment);
+		params.put("userId", userId);		
+		if (userName != null) {
+			params.put("userName", userName);
+		}
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.ADD_COMMENT_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		SimpleResponse addCommentResponse = responseHandler
+				.handleResponse(serverResponse, SimpleResponse.class);
+
+		if (!addCommentResponse.getSuccess()) {			
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get response. Perhaps the site no longer exists. The id was: "
+							+ mId);
+		}
+	}
+
+	@Override
+	public void addComment(final String userId, final String userName, final String comment,
+			final ARListener<Void> listner, final ARErrorListener onErrorListener) {
 		
+		GenericCallback genericCallback = new GenericCallback() {
+			@Override
+			public void onComplete(Object result) {
+				listner.handleResponse(null);
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}				
+			}
+
+			@Override
+			public Object toCall() {
+				addComment(userId, userName, comment);
+				return null;
+			}			
+		};
+		
+		GenericAsyncTask<Void> asyncTask = new GenericAsyncTask<Void>(genericCallback);
+		asyncTask.execute();		
+	}
+
+	@Override
+	public List<SiteComment> getSiteComments(String siteId) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.LIST_SITE_COMMENT_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		SiteCommentsResponse siteCommentsResponse = responseHandler
+				.handleResponse(serverResponse, SiteCommentsResponse.class);
+
+		if (siteCommentsResponse != null) {
+			return siteCommentsResponse;			
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get site info summary. Perhaps the site no longer exists.");
+		}
+	}
+
+	@Override
+	public void getSiteComments(final String siteId,
+			final ARListener<List<SiteComment>> listner,
+			final ARErrorListener onErrorListener) {
+		
+		GenericCallback<List<SiteComment>> genericCallback = new GenericCallback<List<SiteComment>>() {
+			@Override
+			public void onComplete(List<SiteComment> result) {
+				listner.handleResponse(result);
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}				
+			}
+
+			@Override
+			public List<SiteComment> toCall() {
+				return getSiteComments(siteId);
+			}			
+		};
+		
+		GenericAsyncTask<List<SiteComment>> asyncTask = 
+				new GenericAsyncTask<List<SiteComment>>(genericCallback);
+		asyncTask.execute();
 	}
 }

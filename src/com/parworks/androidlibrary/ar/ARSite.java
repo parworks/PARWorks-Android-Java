@@ -19,6 +19,7 @@ import java.util.List;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.ImageOverlayInfo;
 import com.parworks.androidlibrary.response.OverlayStatus;
+import com.parworks.androidlibrary.response.SiteComment;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
 
@@ -354,4 +355,41 @@ public interface ARSite {
 	 */
 	public Boolean updateInfo(SiteInfo info);
 
+	/**
+	 * Synchronously add a new comment to a site
+	 * 
+	 * @param userId
+	 * @param userName optional
+	 * @param comment
+	 */
+	public void addComment(String userId, String userName, String comment);
+	
+	/**
+	 * Asynchronously add a new comment to a site
+	 * 
+	 * @param userId
+	 * @param userName optional
+	 * @param comment
+	 * @param listner
+	 * @param onErrorListener
+	 */
+	public void addComment(String userId, String userName, String comment, 
+			ARListener<Void> listner, ARErrorListener onErrorListener);
+	
+	/**
+	 * Synchronously get comments with a site
+	 * 
+	 * @param siteId
+	 */
+	public List<SiteComment> getSiteComments(String siteId);
+	
+	/**
+	 * Asynchronously get comments with a site
+	 * 
+	 * @param siteId
+	 * @param listner
+	 * @param onErrorListener
+	 */
+	public void getSiteComments(String siteId, ARListener<List<SiteComment>> listner, 
+			ARErrorListener onErrorListener);
 }
