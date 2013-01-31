@@ -13,6 +13,8 @@
  */
 package com.parworks.androidlibrary.response;
 
+import java.util.List;
+
 /**
  * An object specifying all the information about an ARSite. This contains all
  * of the attributes returned by the Get Site Info endpoint.
@@ -42,6 +44,10 @@ public class SiteInfo {
 	private int mTotalImages;
 	private FeatureType mFeatureDescriptorType;
 	private String mProcessingProfile;
+	private String mAddress;
+	private String posterImageOverlayContent;
+	private String posterImageURL;
+	private List<String> tags;
 
 	public enum OverlayState {
 		PROCESSING, PROCESSED, PROCESSING_FAILED, NOT_PROCESSED
@@ -241,6 +247,38 @@ public class SiteInfo {
 		} else {
 			return true;
 		}
+	}
+
+	public String getAddress() {
+		return mAddress;
+	}
+
+	public void setAddress(String mAddress) {
+		this.mAddress = mAddress;
+	}
+
+	public String getPosterImageOverlayContent() {
+		return posterImageOverlayContent;
+	}
+
+	public void setPosterImageOverlayContent(String posterImageOverlayContent) {
+		this.posterImageOverlayContent = posterImageOverlayContent;
+	}
+
+	public String getPosterImageURL() {
+		return posterImageURL;
+	}
+
+	public void setPosterImageURL(String posterImageURL) {
+		this.posterImageURL = posterImageURL;
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
 	}
 
 }
