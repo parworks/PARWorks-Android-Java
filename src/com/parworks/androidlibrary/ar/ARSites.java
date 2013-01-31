@@ -27,6 +27,7 @@ import org.apache.http.entity.mime.content.StringBody;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
+import com.parworks.androidlibrary.response.AllTagsResponse;
 import com.parworks.androidlibrary.response.AugmentImageGroupResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
@@ -636,5 +637,51 @@ public class ARSites {
 		}
 
 	}
+	
+	/**
+	 * Get all tags available 
+	 */
+	public List<String> getAllTags() {
+		HttpResponse serverResponse;
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.LIST_ALL_TAGS_PATH);
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
 
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AllTagsResponse allTagsResponse = responseHandler.handleResponse(
+				serverResponse, AllTagsResponse.class);
+
+		if (allTagsResponse != null) {			
+			return allTagsResponse;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+		}
+	}
+	
+	public void getAllTags(final ARListener<List<String>> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<List<String>> genericCallback = new GenericCallback<List<String>>() {
+			@Override
+			public List<String> toCall() {
+				return getAllTags();
+			}
+
+			@Override
+			public void onComplete(List<String> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
+		asyncTask.execute();
+	}
 }
