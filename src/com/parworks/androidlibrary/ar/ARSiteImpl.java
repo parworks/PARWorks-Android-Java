@@ -31,6 +31,8 @@ import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
 import com.parworks.androidlibrary.response.AugmentImageResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
+import com.parworks.androidlibrary.response.AugmentedImage;
+import com.parworks.androidlibrary.response.AugmentedImagesResponse;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
@@ -1173,5 +1175,57 @@ public class ARSiteImpl implements ARSite {
 		GenericAsyncTask<List<SiteComment>> asyncTask = 
 				new GenericAsyncTask<List<SiteComment>>(genericCallback);
 		asyncTask.execute();
+	}
+
+	@Override
+	public List<AugmentedImage> getAugmentedImages() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.LIST_AUGMENTED_IMAGES_PATH, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AugmentedImagesResponse augmentedImagesResponse = responseHandler
+				.handleResponse(serverResponse, AugmentedImagesResponse.class);
+
+		if (augmentedImagesResponse != null) {
+			return augmentedImagesResponse;			
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but was unable to get augmented images. Perhaps the site no longer exists.");
+		}
+	}
+
+	@Override
+	public void getAugmentedImages(final ARListener<List<AugmentedImage>> listner,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<List<AugmentedImage>> genericCallback = new GenericCallback<List<AugmentedImage>>() {
+			@Override
+			public void onComplete(List<AugmentedImage> result) {
+				listner.handleResponse(result);
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}				
+			}
+
+			@Override
+			public List<AugmentedImage> toCall() {
+				return getAugmentedImages();
+			}			
+		};
+		
+		GenericAsyncTask<List<AugmentedImage>> asyncTask = 
+				new GenericAsyncTask<List<AugmentedImage>>(genericCallback);
+		asyncTask.execute();		
 	}
 }

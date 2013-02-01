@@ -16,6 +16,7 @@ package com.parworks.androidlibrary.ar;
 import java.io.InputStream;
 import java.util.List;
 
+import com.parworks.androidlibrary.response.AugmentedImage;
 import com.parworks.androidlibrary.response.BaseImageInfo;
 import com.parworks.androidlibrary.response.ImageOverlayInfo;
 import com.parworks.androidlibrary.response.OverlayStatus;
@@ -391,5 +392,19 @@ public interface ARSite {
 	 * @param onErrorListener
 	 */
 	public void getSiteComments(String siteId, ARListener<List<SiteComment>> listner, 
+			ARErrorListener onErrorListener);
+	
+	/**
+	 * Synchronously get augmented images
+	 */
+	public List<AugmentedImage> getAugmentedImages();
+	
+	/**
+	 * Asyncronously get augmented images
+	 * 
+	 * @param listner
+	 * @param onErrorListener
+	 */
+	public void getAugmentedImages(ARListener<List<AugmentedImage>> listner, 
 			ARErrorListener onErrorListener);
 }
