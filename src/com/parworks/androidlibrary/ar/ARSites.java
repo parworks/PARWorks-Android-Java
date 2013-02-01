@@ -748,4 +748,54 @@ public class ARSites {
 		asyncTask.execute();
 	}
 	
+	/**
+	 * Synchronously get all suggested tags 
+	 */
+	public List<String> getSuggestedTags() {
+		HttpResponse serverResponse;
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.LIST_SUGGESTED_TAGS_PATH);
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AllTagsResponse allTagsResponse = responseHandler.handleResponse(
+				serverResponse, AllTagsResponse.class);
+
+		if (allTagsResponse != null) {			
+			return allTagsResponse;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+		}
+	}
+	
+	/**
+	 * Asynchronously get all tags available 
+	 */
+	public void getSuggestedTags(final ARListener<List<String>> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<List<String>> genericCallback = new GenericCallback<List<String>>() {
+			@Override
+			public List<String> toCall() {
+				return getSuggestedTags();
+			}
+
+			@Override
+			public void onComplete(List<String> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
+		asyncTask.execute();
+	}
+	
 }
