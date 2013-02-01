@@ -2,10 +2,7 @@ package com.parworks.androidlibrary.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
-
-import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;

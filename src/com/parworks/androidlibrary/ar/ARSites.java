@@ -639,7 +639,7 @@ public class ARSites {
 	}
 	
 	/**
-	 * Get all tags available 
+	 * Synchronously get all tags available 
 	 */
 	public List<String> getAllTags() {
 		HttpResponse serverResponse;
@@ -661,6 +661,9 @@ public class ARSites {
 		}
 	}
 	
+	/**
+	 * Asynchronously get all tags available 
+	 */
 	public void getAllTags(final ARListener<List<String>> listener, final ARErrorListener onErrorListener) {
 		GenericCallback<List<String>> genericCallback = new GenericCallback<List<String>>() {
 			@Override
@@ -684,4 +687,65 @@ public class ARSites {
 		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
 		asyncTask.execute();
 	}
+	
+	/**
+	 * Send a metrics when a user clicks an overlay 
+	 * 
+	 * @param siteId
+	 * @param overlayName
+	 * @param userId
+	 */
+	public void addOverlayClick(String siteId, String overlayName, String userId) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("site", siteId);
+		parameterMap.put("overlayName", overlayName);
+		parameterMap.put("userId", userId);
+		
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse;
+		serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.ADD_OVERLAY_CLICK_PATH, parameterMap);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		BasicResponse addSiteResponse = responseHandler.handleResponse(
+				serverResponse, BasicResponse.class);
+
+		if (!addSiteResponse.getSuccess()) {
+			throw new ARException(
+					"Successfully communicated with the server, but failed to create a new site. The site id could already be in use, or a problem occurred.");
+		}
+	}
+	
+	public void addOverlayClick(final String siteId, final String overlayName, final String userId,
+			final ARListener<Void> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<Void> genericCallback = new GenericCallback<Void>() {
+
+			@Override
+			public Void toCall() {
+				addOverlayClick(siteId, overlayName, userId);
+				return null;
+			}
+
+			@Override
+			public void onComplete(Void result) {
+				if (result != null) {
+					listener.handleResponse(result);				
+				}
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}
+		};
+		
+		GenericAsyncTask<Void> asyncTask = new GenericAsyncTask<Void>(genericCallback);
+		asyncTask.execute();
+	}
+	
 }

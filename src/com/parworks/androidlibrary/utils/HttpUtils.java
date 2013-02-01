@@ -71,6 +71,7 @@ public class HttpUtils {
 	public final static String ADD_COMMENT_PATH = "/ar/site/comment/add";
 	public final static String LIST_SITE_COMMENT_PATH = "/ar/site/comment/list";
 	public final static String LIST_ALL_TAGS_PATH = "/ar/site/tag/all";
+	public final static String ADD_OVERLAY_CLICK_PATH = "/ar/site/overlay/click";
 	
 	
 	String mTime;
