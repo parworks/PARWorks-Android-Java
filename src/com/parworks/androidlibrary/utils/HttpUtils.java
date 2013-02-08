@@ -75,6 +75,7 @@ public class HttpUtils {
 	public final static String ADD_OVERLAY_CLICK_PATH = "/ar/site/overlay/click";
 	public final static String SEARCH_TAG_PATH = "/ar/site/tag/list";
 	public final static String LIST_AUGMENTED_IMAGES_PATH = "/ar/site/image/augmented/list";
+	public final static String LIST_TRENDING_SITES_PATH = "/ar/site/list/trending";			
 	
 	
 	String mTime;

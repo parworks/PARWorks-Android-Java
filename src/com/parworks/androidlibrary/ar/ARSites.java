@@ -27,7 +27,6 @@ import org.apache.http.entity.mime.content.StringBody;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
-import com.parworks.androidlibrary.response.StringListResponse;
 import com.parworks.androidlibrary.response.AugmentImageGroupResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
@@ -37,6 +36,9 @@ import com.parworks.androidlibrary.response.NearbySitesResponse;
 import com.parworks.androidlibrary.response.OverlayAugmentResponse;
 import com.parworks.androidlibrary.response.SiteImageBundle;
 import com.parworks.androidlibrary.response.SiteInfo;
+import com.parworks.androidlibrary.response.SiteInfoOverview;
+import com.parworks.androidlibrary.response.StringListResponse;
+import com.parworks.androidlibrary.response.TrendingSitesResponse;
 import com.parworks.androidlibrary.utils.GenericAsyncTask;
 import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HMacShaPasswordEncoder;
@@ -845,5 +847,52 @@ public class ARSites {
 		
 		GenericAsyncTask<List<String>> asyncTask = new GenericAsyncTask<List<String>>(genericCallback);
 		asyncTask.execute();
+	}
+	
+	public List<SiteInfoOverview> getTrendingSites() {
+		Map<String, String> parameterMap = new HashMap<String, String>();		
+		
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse;
+		serverResponse = httpUtils.doPost(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.LIST_TRENDING_SITES_PATH, parameterMap);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		TrendingSitesResponse trendingSitesResponse = responseHandler.handleResponse(
+				serverResponse, TrendingSitesResponse.class);
+
+		if (trendingSitesResponse != null) {			
+			return trendingSitesResponse;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+		}
+	}
+	
+	public void getTrendingSites(final ARListener<List<SiteInfoOverview>> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<List<SiteInfoOverview>> genericCallback = new GenericCallback<List<SiteInfoOverview>>() {
+			@Override
+			public List<SiteInfoOverview> toCall() {
+				return getTrendingSites();
+			}
+
+			@Override
+			public void onComplete(List<SiteInfoOverview> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<SiteInfoOverview>> asyncTask = new GenericAsyncTask<List<SiteInfoOverview>>(genericCallback);
+		asyncTask.execute();		
 	}
 }

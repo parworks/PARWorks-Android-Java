@@ -5,6 +5,8 @@ public class AugmentedImage {
 	private String siteId;
 	private String imgId;
 	private String userId;
+	private int fullSizeWidth;
+	private int fullSizeHeight;
 	private String imgPath;	
 	private String imgGalleryPath;
 	private String imgContentPath;
@@ -73,6 +75,22 @@ public class AugmentedImage {
 	
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public int getFullSizeWidth() {
+		return fullSizeWidth;
+	}
+
+	public void setFullSizeWidth(int fullSizeWidth) {
+		this.fullSizeWidth = fullSizeWidth;
+	}
+
+	public int getFullSizeHeight() {
+		return fullSizeHeight;
+	}
+
+	public void setFullSizeHeight(int fullSizeHeight) {
+		this.fullSizeHeight = fullSizeHeight;
 	}
 	
 }
