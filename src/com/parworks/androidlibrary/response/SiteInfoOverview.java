@@ -13,6 +13,7 @@ public class SiteInfoOverview {
 	private Double lat;
 	private String posterImageURL;
 	private String posterImageOverlayContent;
+	private String posterImageBlurredURL;
 	private int numAugmentedImages;
 	private List<AugmentedImage> recentlyAugmentedImages = new ArrayList<AugmentedImage>();
 
@@ -162,6 +163,14 @@ public class SiteInfoOverview {
 
 	public void setRecentlyAugmentedImages(List<AugmentedImage> recentlyAugmentedImages) {
 		this.recentlyAugmentedImages = recentlyAugmentedImages;
+	}
+
+	public String getPosterImageBlurredURL() {
+		return posterImageBlurredURL;
+	}
+
+	public void setPosterImageBlurredURL(String posterImageBlurredURL) {
+		this.posterImageBlurredURL = posterImageBlurredURL;
 	}
 
 }
