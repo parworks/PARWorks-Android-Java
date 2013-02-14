@@ -403,6 +403,39 @@ public class ARSites {
 	}
 	
 	/**
+	 * Asynchronously get a SiteInfo
+	 * 
+	 * @param id
+	 *            the id of the site
+	 * @param listener
+	 *            the callback which provides the ARSite once the call completes
+	 */
+	public void getSiteInfo(final String id, final ARListener<SiteInfo> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<SiteInfo> genericCallback = new GenericCallback<SiteInfo>() {
+			@Override
+			public SiteInfo toCall() {
+				return getSiteInfo(id);
+			}
+
+			@Override
+			public void onComplete(SiteInfo result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<SiteInfo> asyncTask = new GenericAsyncTask<SiteInfo>(genericCallback);
+		asyncTask.execute();
+	}
+	
+	/**
 	 * Asynchronously get all sites owned by the users
 	 *
 	 * @param listener
@@ -495,6 +528,37 @@ public class ARSites {
 			ARSite newSite = new ARSiteImpl(getSiteResponse.getSite().getId(),
 					mApiKey, mTime, mSignature);
 			return newSite;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but failed to get siteinfo. The most likely cause is that a site with the specificed ID does not exist.");
+		}
+	}
+	
+	/**
+	 * Synchronously get the SiteInfo
+	 * 
+	 * @param id
+	 *            site id
+	 * @return the ARSite
+	 */
+	public SiteInfo getSiteInfo(String id) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("site", id);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse;
+		serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.GET_SITE_INFO_PATH, parameterMap);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		GetSiteInfoResponse getSiteResponse = responseHandler.handleResponse(
+				serverResponse, GetSiteInfoResponse.class);
+
+		if (getSiteResponse.getSuccess() == true) {
+			return getSiteResponse.getSite();
 		} else {
 			throw new ARException(
 					"Successfully communicated with the server, but failed to get siteinfo. The most likely cause is that a site with the specificed ID does not exist.");
