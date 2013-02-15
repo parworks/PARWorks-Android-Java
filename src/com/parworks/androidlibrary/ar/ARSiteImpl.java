@@ -1067,7 +1067,7 @@ public class ARSiteImpl implements ARSite {
 	}
 
 	@Override
-	public void addComment(String userId, String userName, String comment) {
+	public Boolean addComment(String userId, String userName, String comment) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
 		params.put("comment", comment);
@@ -1092,17 +1092,19 @@ public class ARSiteImpl implements ARSite {
 			throw new ARException(
 					"Successfully communicated with the server, but was unable to get response. Perhaps the site no longer exists. The id was: "
 							+ mId);
+		} else {
+			return true;
 		}
 	}
 
 	@Override
 	public void addComment(final String userId, final String userName, final String comment,
-			final ARListener<Void> listner, final ARErrorListener onErrorListener) {
+			final ARListener<Void> listener, final ARErrorListener onErrorListener) {
 		
-		GenericCallback genericCallback = new GenericCallback() {
+		GenericCallback<Boolean> genericCallback = new GenericCallback<Boolean>() {
 			@Override
-			public void onComplete(Object result) {
-				listner.handleResponse(null);
+			public void onComplete(Boolean result) {
+				listener.handleResponse(null);
 			}
 
 			@Override
@@ -1113,13 +1115,12 @@ public class ARSiteImpl implements ARSite {
 			}
 
 			@Override
-			public Object toCall() {
-				addComment(userId, userName, comment);
-				return null;
+			public Boolean toCall() {
+				return addComment(userId, userName, comment);
 			}			
 		};
 		
-		GenericAsyncTask<Void> asyncTask = new GenericAsyncTask<Void>(genericCallback);
+		GenericAsyncTask<Boolean> asyncTask = new GenericAsyncTask<Boolean>(genericCallback);
 		asyncTask.execute();		
 	}
 

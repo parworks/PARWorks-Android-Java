@@ -362,8 +362,9 @@ public interface ARSite {
 	 * @param userId
 	 * @param userName optional
 	 * @param comment
+	 * @return 
 	 */
-	public void addComment(String userId, String userName, String comment);
+	public Boolean addComment(String userId, String userName, String comment);
 	
 	/**
 	 * Asynchronously add a new comment to a site
