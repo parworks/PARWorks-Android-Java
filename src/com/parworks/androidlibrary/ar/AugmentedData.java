@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -35,10 +34,15 @@ public class AugmentedData implements Serializable {
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	private String mFov;
+	@JsonProperty("focallength")
 	private String mFocalLength;
 	private String mScore;
 	private List<Overlay> mOverlays;
 	private boolean mLocalization;
+	
+	public AugmentedData() {
+		
+	}
 
 	public AugmentedData(String fov, String focalLength, String score,
 			boolean localization, List<Overlay> overlays) {

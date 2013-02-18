@@ -794,7 +794,6 @@ public class ARSiteImpl implements ARSite {
 				overlayResponse.getDescription(),
 				parseVertices(overlayResponse.getVertices()));
 		return overlay;
-
 	}
 
 	private List<Vertex> parseVertices(String serverOutput) {

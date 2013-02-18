@@ -2,10 +2,13 @@ package com.parworks.androidlibrary.response;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class AugmentImageResultResponse {
 
 	private String fov;
+	@JsonProperty("focallength")
 	private String focalLength;
 	private String score;
 	private List<OverlayAugmentResponse> overlays;
