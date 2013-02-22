@@ -47,6 +47,7 @@ public class SiteInfo {
 	private String mAddress;
 	private String posterImageOverlayContent;
 	private String posterImageURL;
+	private AugmentedImage augmentedPosterImage;
 	private List<String> tags;
 
 	public enum OverlayState {
@@ -279,6 +280,14 @@ public class SiteInfo {
 
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	public AugmentedImage getAugmentedPosterImage() {
+		return augmentedPosterImage;
+	}
+
+	public void setAugmentedPosterImage(AugmentedImage augmentedPosterImage) {
+		this.augmentedPosterImage = augmentedPosterImage;
 	}
 
 }
