@@ -14,6 +14,7 @@ public class SiteInfoOverview {
 	private String posterImageURL;
 	private String posterImageOverlayContent;
 	private String posterImageBlurredURL;
+	private AugmentedImage augmentedPosterImage;
 	private int numAugmentedImages;
 	private List<AugmentedImage> recentlyAugmentedImages = new ArrayList<AugmentedImage>();
 
@@ -173,4 +174,11 @@ public class SiteInfoOverview {
 		this.posterImageBlurredURL = posterImageBlurredURL;
 	}
 
+	public AugmentedImage getAugmentedPosterImage() {
+		return augmentedPosterImage;
+	}
+
+	public void setAugmentedPosterImage(AugmentedImage augmentedPosterImage) {
+		this.augmentedPosterImage = augmentedPosterImage;
+	}
 }
