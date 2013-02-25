@@ -99,14 +99,7 @@ public class ImageOverlayInfo implements Serializable {
 		} catch (IOException e) {
 			// when failing to parse the overlay content,
 			// generate an empty object and use default for everything
-			this.configuration = new OverlayConfiguration();
-			try {
-				String test = mapper.writeValueAsString(this.configuration);
-				System.out.println(test);
-			} catch (JsonProcessingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			this.configuration = new OverlayConfiguration();			
 		}
 	}
 }

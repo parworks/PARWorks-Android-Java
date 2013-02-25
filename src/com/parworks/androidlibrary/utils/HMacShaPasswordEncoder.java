@@ -146,7 +146,5 @@ public class HMacShaPasswordEncoder implements PasswordEncoder {
     
     public static void main(String[] args){
     	HMacShaPasswordEncoder encoder = new HMacShaPasswordEncoder(256,true);
-    	System.out.println(encoder.encodePassword(args[0], args[1]));
-    	
     }
 }
