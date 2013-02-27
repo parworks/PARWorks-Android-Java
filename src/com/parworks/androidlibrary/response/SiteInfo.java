@@ -70,9 +70,13 @@ public class SiteInfo {
 		parameterMap.put("channel", getChannel());
 		parameterMap.put("address", getAddress());
 		parameterMap.put("posterImageOverlayContent",getPosterImageOverlayContent());
-		parameterMap.put("sitestate", getSiteState().name());
-		parameterMap.put("bimstate", getBimState().name());
 		parameterMap.put("posterImageUrl", getPosterImageURL());
+		if(getSiteState() != null) {
+			parameterMap.put("sitestate", getSiteState().name());
+		}
+		if(getBimState() != null) {
+			parameterMap.put("bimstate", getBimState().name());
+		}
 		return parameterMap;
 	}
 
