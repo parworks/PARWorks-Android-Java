@@ -1018,14 +1018,7 @@ public class ARSiteImpl implements ARSite {
 	
 	@Override
 	public Boolean updateInfo(SiteInfo info) {
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put("id", info.getId());
-		parameterMap.put("name", info.getName());
-		parameterMap.put("lon", info.getLon());
-		parameterMap.put("lat", info.getLat());
-		parameterMap.put("description", info.getDescription());
-		parameterMap.put("feature", info.getFeatureType());
-		parameterMap.put("channel", info.getChannel());
+		Map<String, String> parameterMap = info.toParameterMap();
 		
 		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
 		HttpResponse serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.UPDATE_SITE_PATH,parameterMap);

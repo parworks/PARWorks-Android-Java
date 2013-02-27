@@ -13,7 +13,9 @@
  */
 package com.parworks.androidlibrary.response;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An object specifying all the information about an ARSite. This contains all
@@ -56,6 +58,22 @@ public class SiteInfo {
 
 	public enum BaseImageState {
 		PROCESSING, PROCESSED, PROCESSING_FAILED, NOT_PROCESSED
+	}
+	public Map<String,String> toParameterMap() {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("id", getId());
+		parameterMap.put("name", getName());
+		parameterMap.put("lon", getLon());
+		parameterMap.put("lat", getLat());
+		parameterMap.put("description", getDescription());
+		parameterMap.put("feature", getFeatureType());
+		parameterMap.put("channel", getChannel());
+		parameterMap.put("address", getAddress());
+		parameterMap.put("posterImageOverlayContent",getPosterImageOverlayContent());
+		parameterMap.put("sitestate", getSiteState().name());
+		parameterMap.put("bimstate", getBimState().name());
+		parameterMap.put("posterImageUrl", getPosterImageURL());
+		return parameterMap;
 	}
 
 	public SiteInfo() {
@@ -289,5 +307,6 @@ public class SiteInfo {
 	public void setAugmentedPosterImage(AugmentedImage augmentedPosterImage) {
 		this.augmentedPosterImage = augmentedPosterImage;
 	}
+
 
 }
