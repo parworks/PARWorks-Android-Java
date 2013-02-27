@@ -202,7 +202,11 @@ public class HttpUtils {
 			Map.Entry<String, String> pairs = (Map.Entry<String, String>) it
 					.next();
 			try {
-				url += "&" + pairs.getKey() + "=" + URLEncoder.encode(pairs.getValue(),"UTF-8");
+				String valueToEncode = pairs.getValue();
+				if(valueToEncode == null) {
+					valueToEncode = "";
+				}
+				url += "&" + pairs.getKey() + "=" + URLEncoder.encode(valueToEncode,"UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				throw new ARException(e);
 			}
