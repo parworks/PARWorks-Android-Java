@@ -95,7 +95,8 @@ public class ImageOverlayInfo implements Serializable {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
-			this.configuration = mapper.readValue(content, OverlayConfiguration.class);
+			this.configuration = content == null ? new OverlayConfiguration()
+					: mapper.readValue(content, OverlayConfiguration.class);
 		} catch (IOException e) {
 			// when failing to parse the overlay content,
 			// generate an empty object and use default for everything
