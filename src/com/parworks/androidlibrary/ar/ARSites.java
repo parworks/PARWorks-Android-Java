@@ -368,6 +368,38 @@ public class ARSites {
 		GenericAsyncTask<List<ARSite>> asyncTask = new GenericAsyncTask<List<ARSite>>(genericCallback);
 		asyncTask.execute();
 	}
+	
+	
+	public void nearInfo(double lat, double lon, int max, double radius,
+			ARListener<List<SiteInfo>> sites, ARErrorListener onErrorListener) {
+		nearInfo(Double.toString(lat), Double.toString(lon), Integer.toString(max),
+				Double.toString(radius), sites, onErrorListener);
+	}
+
+	private void nearInfo(final String lat, final String lon, final String max, final String radius,
+			final ARListener<List<SiteInfo>> listener, final ARErrorListener onErrorListener) {		
+		GenericCallback<List<SiteInfo>> genericCallback = new GenericCallback<List<SiteInfo>>() {
+			@Override
+			public List<SiteInfo> toCall() {
+				return nearInfo(lat, lon, max, radius);
+			}
+
+			@Override
+			public void onComplete(List<SiteInfo> result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<List<SiteInfo>> asyncTask = new GenericAsyncTask<List<SiteInfo>>(genericCallback);
+		asyncTask.execute();
+	}
 
 	/**
 	 * Asynchronously get a previously created site
@@ -702,6 +734,37 @@ public class ARSites {
 					"Successfully communicated with the server, but the server was unsuccessful in handling the request.");
 		}
 
+	}
+	
+	public List<SiteInfo> nearInfo(double lat, double lon, int max, double radius) {
+		return nearInfo(Double.toString(lat), Double.toString(lon),
+				Integer.toString(max), Double.toString(radius));
+	}
+	private List<SiteInfo> nearInfo(String lat, String lon, String max, String radius) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("lat", lat);
+		parameterMap.put("lon", lon);
+		parameterMap.put("max", max);
+		parameterMap.put("radius", radius);
+
+		HttpResponse serverResponse;
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		serverResponse = httpUtils.doGet(HttpUtils.PARWORKS_API_BASE_URL
+				+ HttpUtils.NEARBY_SITE_PATH, parameterMap);
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		NearbySitesResponse nearbySites = responseHandler.handleResponse(
+				serverResponse, NearbySitesResponse.class);
+
+		if (nearbySites.getSuccess() == true) {
+			List<SiteInfo> sitesInfo = nearbySites.getSites();
+			return sitesInfo;
+		} else {
+			throw new ARException(
+					"Successfully communicated with the server, but the server was unsuccessful in handling the request.");
+		}
 	}
 	
 	/**
