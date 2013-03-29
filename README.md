@@ -34,6 +34,8 @@ Our Android library provides a native Java interface to the PARWorks API, allowi
 Getting Started with the Android library
 =========
 
+Our open source app, MARS, makes extensive use of this library. Download it here: https://github.com/parworks/PARWorks-Android-MARS
+
 Create an ARSites object and pass in your apikey and secretkey as strings.
 
 	ARSites mySites = new ARSites(apiKey,secretKey);
@@ -45,13 +47,22 @@ Create a new site synchronously by calling create:
 
 Or Asynchronously:
 
-	mySite.create(siteId, description, channel, new ARListener<ARSite>() {
+	ARSites sites = new ARSites(apiKey, secretKey);
+	sites.create(siteId, siteDesc, siteChannel, new ARListener<ARSite>() {
+		
 		@Override
-		public void handleResponse(ARResponse<ARSite> resp) {
-			ARSite mySite = resp.getPayload();
-			//do something with the site...
+		public void handleResponse(ARSite site) {
+			Log.d(TAG,"The site is: " + site.getSiteId());
+			
 		}
-	}
+	}, new ARErrorListener() {
+		
+		@Override
+		public void handleError(Exception error) {
+			Log.e(TAG,error.getMessage());
+			
+		}
+	});
 
 All server requests can be made synchronously or asynchronously. We will show synchronous requests for brevity.
 
