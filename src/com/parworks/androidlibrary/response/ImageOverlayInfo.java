@@ -19,15 +19,14 @@ public class ImageOverlayInfo implements Serializable {
 	private String name;
 	private List<OverlayPoint> points;
 
-	/** 
+	/**
 	 * The configuration object by parsing the content value.
 	 * 
-	 * The reason to not replace content String with this object
-	 * is to better handle old overlay content without the JSON
-	 * format.
+	 * The reason to not replace content String with this object is to better
+	 * handle old overlay content without the JSON format.
 	 */
 	private OverlayConfiguration configuration;
-	
+
 	public String getSite() {
 		return site;
 	}
@@ -42,9 +41,9 @@ public class ImageOverlayInfo implements Serializable {
 
 	public void setContent(String content) {
 		this.content = content;
-		
+
 		// parse the content whenever this is set
-		parseOverlayContent();
+		this.configuration = parseOverlayContent();
 	}
 
 	public String getId() {
@@ -91,16 +90,29 @@ public class ImageOverlayInfo implements Serializable {
 		return configuration;
 	}
 
-	private void parseOverlayContent() {
+	public ImageOverlayInfo clone() {
+		ImageOverlayInfo info = new ImageOverlayInfo();
+		info.configuration = parseOverlayContent();
+		info.points = this.points;
+		info.name = this.name;
+		info.accuracy = this.accuracy;
+		info.imageId = this.imageId;
+		info.id = this.id;
+		info.content = this.content;
+		info.site = this.site;
+		return info;
+	}
+
+	private OverlayConfiguration parseOverlayContent() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+				false);
+		OverlayConfiguration config = new OverlayConfiguration();
 		try {
-			this.configuration = content == null ? new OverlayConfiguration()
-					: mapper.readValue(content, OverlayConfiguration.class);
+			config = content == null ? new OverlayConfiguration() : mapper
+					.readValue(content, OverlayConfiguration.class);
 		} catch (IOException e) {
-			// when failing to parse the overlay content,
-			// generate an empty object and use default for everything
-			this.configuration = new OverlayConfiguration();			
 		}
+		return config;
 	}
 }
