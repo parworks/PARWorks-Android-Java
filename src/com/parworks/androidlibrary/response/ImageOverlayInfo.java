@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2013 PAR Works, Inc
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package com.parworks.androidlibrary.response;
 
 import java.io.IOException;
@@ -19,14 +34,15 @@ public class ImageOverlayInfo implements Serializable {
 	private String name;
 	private List<OverlayPoint> points;
 
-	/**
+	/** 
 	 * The configuration object by parsing the content value.
 	 * 
-	 * The reason to not replace content String with this object is to better
-	 * handle old overlay content without the JSON format.
+	 * The reason to not replace content String with this object
+	 * is to better handle old overlay content without the JSON
+	 * format.
 	 */
 	private OverlayConfiguration configuration;
-
+	
 	public String getSite() {
 		return site;
 	}
@@ -41,7 +57,7 @@ public class ImageOverlayInfo implements Serializable {
 
 	public void setContent(String content) {
 		this.content = content;
-
+		
 		// parse the content whenever this is set
 		this.configuration = parseOverlayContent();
 	}
@@ -89,7 +105,7 @@ public class ImageOverlayInfo implements Serializable {
 	public OverlayConfiguration getConfiguration() {
 		return configuration;
 	}
-
+	
 	public ImageOverlayInfo clone() {
 		ImageOverlayInfo info = new ImageOverlayInfo();
 		info.configuration = parseOverlayContent();
@@ -105,14 +121,17 @@ public class ImageOverlayInfo implements Serializable {
 
 	private OverlayConfiguration parseOverlayContent() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-				false);
-		OverlayConfiguration config = new OverlayConfiguration();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		OverlayConfiguration conf = null;
 		try {
-			config = content == null ? new OverlayConfiguration() : mapper
-					.readValue(content, OverlayConfiguration.class);
+			conf = content == null ? new OverlayConfiguration()
+					: mapper.readValue(content, OverlayConfiguration.class);
 		} catch (IOException e) {
+			// when failing to parse the overlay content,
+			// generate an empty object and use default for everything
+			conf = new OverlayConfiguration();			
 		}
-		return config;
+		return conf;
 	}
 }
+
