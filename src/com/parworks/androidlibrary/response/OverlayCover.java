@@ -24,13 +24,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OverlayCover implements Serializable {
 	
 	public enum OverlayCoverType {
-		REGULAR,IMAGE, HIDE
+		REGULAR,IMAGE, HIDE, CENTROID
 	}
 	
 	private String type = "default";
 	private int transparency;
 	private String color;
 	private String provider;
+	private boolean showPulse;
+	private String offset;
 	
 	public String getType() {
 		return type;
@@ -91,5 +93,21 @@ public class OverlayCover implements Serializable {
 			res = OverlayCoverType.REGULAR;
 		}
 		return res;
+	}
+
+	public boolean getShowPulse() {
+		return showPulse;
+	}
+
+	public void setShowPulse(boolean showPulse) {
+		this.showPulse = showPulse;
+	}
+
+	public String getOffset() {
+		return offset;
+	}
+
+	public void setOffset(String offset) {
+		this.offset = offset;
 	}
 }
