@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,22 @@ public class BitmapUtils {
 		InputStream input = null;
 		try {
 			input = stringUrl.openConnection().getInputStream();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return input;
+	}
+	
+	public static InputStream getImageStreamFromUrl(String stringUrl) {
+		URL url;
+		try {
+			url = new URL(stringUrl);
+		} catch (MalformedURLException e1) {
+			throw new RuntimeException(e1);
+		}
+		InputStream input = null;
+		try {
+			input = url.openConnection().getInputStream();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

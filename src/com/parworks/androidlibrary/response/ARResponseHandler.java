@@ -34,5 +34,6 @@ public interface ARResponseHandler {
 	 * @return the deserialized response object
 	 */
 	public <T> T handleResponse(HttpResponse serverResponse, Class<T> typeOfResponse );
+	public <T> T handleResponse(String contentString, Class<T> typeOfResponse);
 
 }

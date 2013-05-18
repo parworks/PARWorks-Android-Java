@@ -28,6 +28,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.util.Log;
+
 import com.parworks.androidlibrary.ar.ARException;
 
 
@@ -76,11 +78,16 @@ public class HttpUtils {
 	public final static String SEARCH_TAG_PATH = "/ar/site/tag/list";
 	public final static String LIST_AUGMENTED_IMAGES_PATH = "/ar/site/image/augmented/list";
 	public final static String LIST_TRENDING_SITES_PATH = "/ar/site/list/trending";			
+	public final static String SEND_PHOTO_DETECT_CHANGES_PATH = "/ar/site/change/detect";
+	public final static String CHECK_CHANGE_DETECTION_RESULT = "/ar/site/change/detect/result";
+	
 	
 	
 	String mTime;
 	String mApiKey;
 	String mSignature;
+
+	public static final String TAG = HttpUtils.class.getName();
 	
 	public HttpUtils(String apiKey, String time, String signature) {
 		mTime = time;

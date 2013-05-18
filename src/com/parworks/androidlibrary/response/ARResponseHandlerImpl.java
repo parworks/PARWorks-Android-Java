@@ -14,14 +14,20 @@
 package com.parworks.androidlibrary.response;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parworks.androidlibrary.ar.ARException;
+import com.parworks.androidlibrary.utils.BitmapUtils;
 
 /**
  * 
@@ -30,21 +36,29 @@ import com.parworks.androidlibrary.ar.ARException;
  */
 public class ARResponseHandlerImpl implements ARResponseHandler {
 
+	public static final String TAG = ARResponseHandlerImpl.class.getName();
+
 	@Override
 	public <T> T handleResponse(HttpResponse serverResponse, Class<T> typeOfResponse) {
+		String contentString = ARResponseUtils.convertHttpResponseToString(serverResponse);
+		return handleResponse(contentString,typeOfResponse);
+	}
+
+	@Override
+	public <T> T handleResponse(String contentString, Class<T> typeOfResponse) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		T responseObject = null;
 		try {
-			responseObject = mapper.readValue(serverResponse.getEntity().getContent(),typeOfResponse);
+			responseObject = mapper.readValue(contentString,typeOfResponse);
 		} catch (JsonParseException e) {
-			throw new ARException("Couldn't handle the response because the http response contained malformed json.",e);
+			throw new ARException("Couldn't create the object " + typeOfResponse + " because the json was malformed : " + contentString,e);
 		} catch (JsonMappingException e) {
-			throw new ARException("Mapping the json response to the response object " + typeOfResponse + " failed.",e);
+			throw new ARException("Mapping the json response to the response object " + typeOfResponse + " failed.  Json was : " + contentString ,e);
 		} catch (IllegalStateException e) {
-			throw new ARException("Couldn't convert the http response to an inputstream because of illegal state.",e);
+			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of illegal state. Json was : " + contentString,e);
 		} catch (IOException e) {
-			throw new ARException("Couldn't convert the http response to an inputstream.",e);
+			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of an ioexception. Json was : " + contentString,e);
 		}
 		return responseObject;
 	}

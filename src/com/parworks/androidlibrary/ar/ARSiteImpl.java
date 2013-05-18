@@ -13,6 +13,7 @@
  */
 package com.parworks.androidlibrary.ar;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -20,13 +21,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.util.Log;
+
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
+import com.parworks.androidlibrary.response.ARResponseUtils;
 import com.parworks.androidlibrary.response.AddBaseImageResponse;
 import com.parworks.androidlibrary.response.AddSaveOverlayResponse;
 import com.parworks.androidlibrary.response.AugmentImageResponse;
@@ -51,11 +56,15 @@ import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfo.BaseImageState;
 import com.parworks.androidlibrary.response.SiteInfo.OverlayState;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
+import com.parworks.androidlibrary.response.photochangedetection.ChangeDetectionResponse;
+import com.parworks.androidlibrary.response.photochangedetection.ChangeDetectionResultData;
 import com.parworks.androidlibrary.utils.GenericAsyncTask;
 import com.parworks.androidlibrary.utils.GenericAsyncTask.GenericCallback;
 import com.parworks.androidlibrary.utils.HttpUtils;
 
 public class ARSiteImpl implements ARSite {
+	
+	public final static String TAG = ARSiteImpl.class.getName();
 
 	private final String mId;
 	private final String mApiKey;
@@ -1220,5 +1229,128 @@ public class ARSiteImpl implements ARSite {
 		GenericAsyncTask<List<AugmentedImage>> asyncTask = 
 				new GenericAsyncTask<List<AugmentedImage>>(genericCallback);
 		asyncTask.execute();		
+	}
+	
+	
+	private String startSendPhotoDetectChanges(InputStream image, String featureType) {
+//		Log.d(TAG,"startSendPhotoDetectChanges");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("site", mId);
+		params.put("featureType", featureType);
+
+		MultipartEntity imageEntity = new MultipartEntity();
+		InputStreamBody imageInputStreamBody = new InputStreamBody(image,
+				"image");
+		imageEntity.addPart("image", imageInputStreamBody);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doPost(
+				HttpUtils.PARWORKS_API_BASE_URL + HttpUtils.SEND_PHOTO_DETECT_CHANGES_PATH,
+				imageEntity, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		AugmentImageResponse augmentImageResponse = responseHandler
+				.handleResponse(serverResponse, AugmentImageResponse.class);
+		
+		if (augmentImageResponse.getSuccess() == false) {
+			throw new ARException(
+					"Successfully communicated with the server, failed to augment the image. Perhaps the site does not exist or has no overlays.");
+		}
+
+		return augmentImageResponse.getImgId();
+	}
+	public ChangeDetectionResultData getPhotoChangesResult(String imgId) {
+//		Log.d(TAG,"sendPhotoDetectChangesResult imgId is: " + imgId);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("imgId", imgId);
+		params.put("site", mId);
+
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGet(
+				HttpUtils.PARWORKS_API_BASE_URL
+						+ HttpUtils.CHECK_CHANGE_DETECTION_RESULT, params);
+
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+		
+
+		if (serverResponse.getStatusLine().getStatusCode() == 204) {
+//			Log.d(TAG,"getPhotoChangesResult status code: " + serverResponse.getStatusLine().getStatusCode());
+			return null;
+		}
+		
+		String responseString = ARResponseUtils.convertHttpResponseToString(serverResponse);
+		if(responseString == null) {
+//			Log.d(TAG,"getPhotoChangesResult: responseString was null");
+			return null;
+		} else if (responseString.isEmpty()) {
+//			Log.d(TAG,"getPhotoChangesResult: responseString was empty");
+			return null;
+		}
+
+		ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+		ChangeDetectionResponse response = responseHandler.handleResponse(
+				responseString, ChangeDetectionResponse.class);
+		
+		ChangeDetectionResultData data = responseHandler.handleResponse(response.getResultData(), ChangeDetectionResultData.class);
+		return data;
+	}
+
+	@Override
+	public ChangeDetectionResultData sendPhotoDetectChangesSync(InputStream image) {
+		return sendPhotoDetectChangesSync(image,"");
+	}
+
+	@Override
+	public ChangeDetectionResultData sendPhotoDetectChangesSync(InputStream image,
+			String featureType) {
+		String imageId = startSendPhotoDetectChanges(image,featureType);
+//		Log.d(TAG,"Finish startSendPhotoDetectChanges");
+
+		ChangeDetectionResultData changeData = null;
+		while (changeData == null) {
+			
+			changeData = getPhotoChangesResult(imageId);
+		}
+		return changeData;
+	}
+
+	@Override
+	public void sendPhotoDetectChangesAsync(final InputStream image,
+			final String featureType, final ARListener<ChangeDetectionResultData> listener,
+			final ARErrorListener onErrorListener) {
+		GenericCallback<ChangeDetectionResultData> genericCallback = new GenericCallback<ChangeDetectionResultData>() {
+			@Override
+			public ChangeDetectionResultData toCall() {
+				return sendPhotoDetectChangesSync(image,featureType);
+			}
+
+			@Override
+			public void onComplete(ChangeDetectionResultData result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
+		
+		GenericAsyncTask<ChangeDetectionResultData> asyncTask = new GenericAsyncTask<ChangeDetectionResultData>(genericCallback);
+		asyncTask.execute();
+		
+	}
+
+	@Override
+	public void sendPhotoDetectChangesAsync(InputStream image,
+			ARListener<ChangeDetectionResultData> listener, ARErrorListener onErrorListener) {
+		sendPhotoDetectChangesAsync(image,"",listener,onErrorListener);
+		
 	}
 }

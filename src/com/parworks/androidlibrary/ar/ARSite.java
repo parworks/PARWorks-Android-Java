@@ -23,6 +23,8 @@ import com.parworks.androidlibrary.response.OverlayStatus;
 import com.parworks.androidlibrary.response.SiteComment;
 import com.parworks.androidlibrary.response.SiteInfo;
 import com.parworks.androidlibrary.response.SiteInfoSummary;
+import com.parworks.androidlibrary.response.photochangedetection.ChangeDetectionResponse;
+import com.parworks.androidlibrary.response.photochangedetection.ChangeDetectionResultData;
 
 /**
  * An interface representing an ARSite
@@ -408,4 +410,39 @@ public interface ARSite {
 	 */
 	public void getAugmentedImages(ARListener<List<AugmentedImage>> listner, 
 			ARErrorListener onErrorListener);
+	/**
+	 * Synchronously send a photo for change detection
+	 * @param image the image
+	 * @return
+	 */
+	public ChangeDetectionResultData sendPhotoDetectChangesSync(InputStream image);
+	
+	/**
+	 * Synchronously send a photo for change detection
+	 * @param image the image
+	 * @param featureType the feature type
+	 * @return
+	 */
+	public ChangeDetectionResultData sendPhotoDetectChangesSync(InputStream image, String featureType);
+	
+	/**
+	 * Async send a photo for change detection
+	 * @param image
+	 * @param featureType
+	 * @param listener
+	 * @param onErrorListener
+	 */
+	public void sendPhotoDetectChangesAsync(InputStream image, String featureType, ARListener<ChangeDetectionResultData> listener, ARErrorListener onErrorListener);
+	
+	/**
+	 * Async send a photo for change detection
+	 * @param image
+	 * @param listener
+	 * @param onErrorListener
+	 */
+	public void sendPhotoDetectChangesAsync(InputStream image, ARListener<ChangeDetectionResultData> listener, ARErrorListener onErrorListener);
+	
+	public ChangeDetectionResultData getPhotoChangesResult(String imgId);
+	
+	
 }
