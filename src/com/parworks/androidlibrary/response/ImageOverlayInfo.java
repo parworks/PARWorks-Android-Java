@@ -19,12 +19,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("serial")
 public class ImageOverlayInfo implements Serializable {
+	
+	public static final String TAG = ImageOverlayInfo.class.getName();
 
 	private String site;
 	private String content;
@@ -105,6 +109,9 @@ public class ImageOverlayInfo implements Serializable {
 	public OverlayConfiguration getConfiguration() {
 		return configuration;
 	}
+	public void setOverlayConfiguration(OverlayConfiguration configuration) {
+		this.configuration = configuration;
+	}
 	
 	public ImageOverlayInfo clone() {
 		ImageOverlayInfo info = new ImageOverlayInfo();
@@ -129,6 +136,7 @@ public class ImageOverlayInfo implements Serializable {
 		} catch (IOException e) {
 			// when failing to parse the overlay content,
 			// generate an empty object and use default for everything
+			Log.e(TAG, e.getMessage());
 			conf = new OverlayConfiguration();			
 		}
 		return conf;
