@@ -105,7 +105,7 @@ public class ChangeDetectionResultData {
 		
 		//create overylay config, set variables
 		OverlayConfiguration configuration = new OverlayConfiguration();
-		configuration.setTitle(instance.getComment());
+		configuration.setTitle("");
 		configuration.setBoundary(boundary);
 		configuration.setCover(cover);
 		configuration.setContent(content);
@@ -118,7 +118,7 @@ public class ChangeDetectionResultData {
 	}
 	private OverlayContent createOverlayContent(ChangeDetectionInstance instance) {
 		OverlayContent content = new OverlayContent();
-		content.setSize("LARGE");
+		content.setSize("SMALL");
 		content.setType("TEXT");
 		content.setProvider(instance.getComment());
 		
