@@ -64,6 +64,7 @@ public class ChangeDetectionResultData {
 		AugmentedData data = new AugmentedData();
 		data.setOverlays(getOverlays());
 		data.setLocalization(true);
+		data.setFov("0.0,0.0");
 		return data;
 	}
 	
@@ -87,7 +88,8 @@ public class ChangeDetectionResultData {
 	}
 	private String getName(ChangeDetectionObject object,
 			ChangeDetectionInstance instance) {
-		String name = object.getObjectId() + " : " + instance.getComment();
+		//String name = object.getObjectId() + " : " + instance.getComment();
+		String name = object.getObjectLabel();
 		return name;
 	}
 	private String createDescription(ChangeDetectionInstance instance) {
