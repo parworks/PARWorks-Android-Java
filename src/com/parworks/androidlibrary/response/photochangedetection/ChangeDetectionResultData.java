@@ -101,7 +101,7 @@ public class ChangeDetectionResultData {
 		OverlayCover cover = createOverlayCover();
 			
 			//create overlay content
-		OverlayContent content = createOverlayContent();
+		OverlayContent content = createOverlayContent(instance);
 		
 		//create overylay config, set variables
 		OverlayConfiguration configuration = new OverlayConfiguration();
@@ -116,9 +116,11 @@ public class ChangeDetectionResultData {
 		//return the string
 		return json;
 	}
-	private OverlayContent createOverlayContent() {
+	private OverlayContent createOverlayContent(ChangeDetectionInstance instance) {
 		OverlayContent content = new OverlayContent();
 		content.setSize("LARGE");
+		content.setType("TEXT");
+		content.setProvider(instance.getComment());
 		
 		return content;
 	}
