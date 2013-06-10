@@ -27,6 +27,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.parworks.androidlibrary.response.ARResponseHandler;
@@ -596,11 +597,12 @@ public class ARSiteImpl implements ARSite {
 
 	}
 
-	public String startImageAugment(InputStream image) {
+	public String startImageAugment(InputStream image, boolean withCD) {
 		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("site", mId);
+		params.put("withCD", Boolean.toString(withCD));
 
 		MultipartEntity imageEntity = new MultipartEntity();
 		InputStreamBody imageInputStreamBody = new InputStreamBody(image,
@@ -655,7 +657,7 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public AugmentedData augmentImage(InputStream image) {
 		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
-		String imageId = startImageAugment(image);
+		String imageId = startImageAugment(image, false);
 
 		AugmentedData augmentedImage = null;
 		while (augmentedImage == null) {
@@ -1263,6 +1265,7 @@ public class ARSiteImpl implements ARSite {
 
 		return augmentImageResponse.getImgId();
 	}
+	
 	public ChangeDetectionResultData getPhotoChangesResult(String imgId) {
 //		Log.d(TAG,"sendPhotoDetectChangesResult imgId is: " + imgId);
 		Map<String, String> params = new HashMap<String, String>();
@@ -1285,10 +1288,8 @@ public class ARSiteImpl implements ARSite {
 		
 		String responseString = ARResponseUtils.convertHttpResponseToString(serverResponse);
 		if(responseString == null) {
-//			Log.d(TAG,"getPhotoChangesResult: responseString was null");
 			return null;
-		} else if (responseString.isEmpty()) {
-//			Log.d(TAG,"getPhotoChangesResult: responseString was empty");
+		} else if (TextUtils.isEmpty(responseString)) {
 			return null;
 		}
 
@@ -1308,12 +1309,11 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public ChangeDetectionResultData sendPhotoDetectChangesSync(InputStream image,
 			String featureType) {
-		String imageId = startSendPhotoDetectChanges(image,featureType);
-//		Log.d(TAG,"Finish startSendPhotoDetectChanges");
+		//String imageId = startSendPhotoDetectChanges(image,featureType);
+		String imageId = startImageAugment(image, true);
 
 		ChangeDetectionResultData changeData = null;
-		while (changeData == null) {
-			
+		while (changeData == null) {			
 			changeData = getPhotoChangesResult(imageId);
 		}
 		return changeData;
@@ -1350,7 +1350,44 @@ public class ARSiteImpl implements ARSite {
 	@Override
 	public void sendPhotoDetectChangesAsync(InputStream image,
 			ARListener<ChangeDetectionResultData> listener, ARErrorListener onErrorListener) {
-		sendPhotoDetectChangesAsync(image,"",listener,onErrorListener);
+		sendPhotoDetectChangesAsync(image,"",listener,onErrorListener);		
+	}
+
+	@Override
+	public void augmentImageWithCD(final InputStream image,
+			final ARListener<AugmentedData> listener, final ARErrorListener onErrorListener) {
+		GenericCallback<AugmentedData> genericCallback = new GenericCallback<AugmentedData>() {
+			@Override
+			public AugmentedData toCall() {
+				return augmentImageWithCD(image);
+			}
+
+			@Override
+			public void onComplete(AugmentedData result) {
+				listener.handleResponse(result);				
+			}
+
+			@Override
+			public void onError(Exception error) {
+				if (onErrorListener != null) {
+					onErrorListener.handleError(error);
+				}
+			}			
+		};
 		
+		GenericAsyncTask<AugmentedData> asyncTask = new GenericAsyncTask<AugmentedData>(genericCallback);
+		asyncTask.execute();		
+	}
+
+	@Override
+	public AugmentedData augmentImageWithCD(InputStream image) {
+		handleStateSync(mId, State.READY_TO_AUGMENT_IMAGES);
+		String imageId = startImageAugment(image, true);
+
+		AugmentedData augmentedImage = null;
+		while (augmentedImage == null) {
+			augmentedImage = getAugmentResult(imageId);
+		}
+		return augmentedImage;
 	}
 }

@@ -72,7 +72,7 @@ public class ChangeDetectionResultData {
 		List<Overlay> overlays = new ArrayList<Overlay>();
 		for(ChangeDetectionObject object : objects) {
 			for(ChangeDetectionInstance instance : object.getInstances()) {
-				String description = createDescription(instance);
+				String description = createDescription(object.getObjectLabel(), instance);
 				String name = getName(object,instance);
 				overlays.add(createOverlay(instance.getVertices(),imageId,name,description));
 			}
@@ -92,7 +92,7 @@ public class ChangeDetectionResultData {
 		String name = object.getObjectLabel();
 		return name;
 	}
-	private String createDescription(ChangeDetectionInstance instance) {
+	private String createDescription(String objectLabel, ChangeDetectionInstance instance) {
 		
 			//create overlay boundary
 		OverlayBoundary boundary = createOverlayBoundary(instance.isCorrect());
@@ -101,7 +101,7 @@ public class ChangeDetectionResultData {
 		OverlayCover cover = createOverlayCover();
 			
 			//create overlay content
-		OverlayContent content = createOverlayContent(instance);
+		OverlayContent content = createOverlayContent(objectLabel, instance);
 		
 		//create overylay config, set variables
 		OverlayConfiguration configuration = new OverlayConfiguration();
@@ -116,11 +116,11 @@ public class ChangeDetectionResultData {
 		//return the string
 		return json;
 	}
-	private OverlayContent createOverlayContent(ChangeDetectionInstance instance) {
+	private OverlayContent createOverlayContent(String objectLabel, ChangeDetectionInstance instance) {
 		OverlayContent content = new OverlayContent();
 		content.setSize("SMALL");
 		content.setType("TEXT");
-		content.setProvider(instance.getComment());
+		content.setProvider(objectLabel + " : " + instance.getComment());
 		
 		return content;
 	}

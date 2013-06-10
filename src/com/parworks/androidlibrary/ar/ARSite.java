@@ -231,6 +231,10 @@ public interface ARSite {
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public void augmentImage(InputStream image,
 			ARListener<AugmentedData> listener, ARErrorListener onErrorListener);
+	
+	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
+	public void augmentImageWithCD(InputStream image,
+			ARListener<AugmentedData> listener, ARErrorListener onErrorListener);
 
 	/**
 	 * Asynchronously delete the site.
@@ -324,6 +328,9 @@ public interface ARSite {
 	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
 	public AugmentedData augmentImage(InputStream image);
 
+	@RequiredState(State.READY_TO_AUGMENT_IMAGES)
+	public AugmentedData augmentImageWithCD(InputStream image);
+	
 	/**
 	 * Synchronously delete the site
 	 */
