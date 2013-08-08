@@ -20,6 +20,7 @@ import java.util.List;
 public class AugmentImageGroupResponse {
 
 	private boolean mSuccess;
+	private String imgId;
 	private List<SiteImageBundle> candidates;
 	
 	public void setSuccess(boolean success) {
@@ -36,6 +37,14 @@ public class AugmentImageGroupResponse {
 
 	public void setCandidates(List<SiteImageBundle> candidates) {
 		this.candidates = candidates;
+	}
+
+	public String getImgId() {
+		return imgId;
+	}
+
+	public void setImgId(String imgId) {
+		this.imgId = imgId;
 	}
 
 }

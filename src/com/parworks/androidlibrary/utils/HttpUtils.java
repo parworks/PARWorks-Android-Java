@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -59,6 +60,7 @@ public class HttpUtils {
 	public final static String ADD_SITE_PATH = "/ar/site/add";
 	public final static String AUGMENT_IMAGE_RESULT_PATH = "/ar/image/augment/result";
 	public final static String AUGMENT_IMAGE_GROUP_PATH = "/ar/image/augment/group";
+	public final static String AUGMENT_IMAGE_GROUP_RESULT_PATH = "/ar/image/augment/group/result";
 	public final static String AUGMENT_IMAGE_WITH_PROXIMITY_SEARCH_PATH = "/ar/image/augment/geo";
 	public final static String AUGMENT_IMAGE_PATH = "/ar/image/augment";
 	public final static String GET_SITE_INFO_PATH = "/ar/site/info";
@@ -109,7 +111,7 @@ public class HttpUtils {
 	 * @return the http response
 	 */
 	public HttpResponse doGet(String url) {
-		return doGet(url, new HashMap<String,String>());
+		return doGet(url, null);
 	}
 	/**
 	 * Synchronous HTTP get to the specified url. Sets the apikey, salt, and signature as headers.
@@ -122,8 +124,9 @@ public class HttpUtils {
 	 */
 	public HttpResponse doGet(String url, Map<String, String> queryString) {
 		
-
-		url = appendQueryStringToUrl(url, queryString);
+		if(queryString != null) {	
+			url = appendQueryStringToUrl(url, queryString);
+		}
 
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet getRequest = new HttpGet(url);
@@ -147,7 +150,14 @@ public class HttpUtils {
 		return response;
 
 	}
+	public HttpResponse doGetWithSiteArray(String url, List<String> sites, Map<String,String> queryString) {
+		url = appendQueryStringToUrl(url,queryString);
+		url = appendSiteListToUrlQueryString(url,sites);
+		return doGet(url);
+	}
 	
+
+
 	/**
 	 * Synchronous HTTP post to the specified url. Set's apikey, salt, and signature as headers.
 	 * @param apiKey
@@ -220,6 +230,20 @@ public class HttpUtils {
 			it.remove();
 		}
 
+		return url;
+	}
+	private String appendSiteListToUrlQueryString(String url, List<String> sites) {
+		for(String site : sites) {
+			try {
+				String valueToEncode = site;
+				if(valueToEncode == null) {
+					valueToEncode = "";
+				}
+				url += "&" + "site" + "=" + URLEncoder.encode(valueToEncode,"UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new ARException(e);
+			}
+		}
 		return url;
 	}
 	

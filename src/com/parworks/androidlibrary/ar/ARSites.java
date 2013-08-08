@@ -25,9 +25,16 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
+import com.parworks.androidlibrary.response.ARResponseUtils;
 import com.parworks.androidlibrary.response.AugmentImageGroupResponse;
+import com.parworks.androidlibrary.response.AugmentImageGroupResultResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
@@ -56,6 +63,8 @@ public class ARSites {
 	private String mApiKey;
 	private String mSignature;
 	private String mTime;
+	
+	private static final String TAG = ARSites.class.getName();
 
 	public ARSites(String apiKey, String secretKey) {
 
@@ -106,14 +115,15 @@ public class ARSites {
 					"Successfully communicated with the server, failed to augment the image. Perhaps the site does not exist or has no overlays.");
 		}
 		
-		List<AugmentedData> result = new ArrayList<AugmentedData>();
-		for(SiteImageBundle bundle : augmentImageGroupResponse.getCandidates()) {
-			AugmentedData augmentedImage = null;
-			while (augmentedImage == null) {
-				augmentedImage = getAugmentResult(bundle.getSite(), bundle.getImgId());
-			}
-			result.add(augmentedImage);
-		}
+//		List<AugmentedData> result = new ArrayList<AugmentedData>();
+//		for(SiteImageBundle bundle : augmentImageGroupResponse.getCandidates()) {
+//			AugmentedData augmentedImage = null;
+//			while (augmentedImage == null) {
+//				augmentedImage = getAugmentResult(bundle.getSite(), bundle.getImgId());
+//			}
+//			result.add(augmentedImage);
+//		}
+		List<AugmentedData> result = getAugmentedImageGroupResult(sites,augmentImageGroupResponse.getImgId());
 		
 		// combine different results
 		AugmentedData finalData = null;
@@ -128,6 +138,39 @@ public class ARSites {
 		}
 		
 		return finalData;
+	}
+	
+	private List<AugmentedData> getAugmentedImageGroupResult(final List<String> sites, String imageId) {
+		Log.d("PARWORKS ANDROID LIBRARY","getAugmentedImageGroupResult");
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("imgId", imageId);
+		HttpUtils httpUtils = new HttpUtils(mApiKey, mTime, mSignature);
+		HttpResponse serverResponse = httpUtils.doGetWithSiteArray(HttpUtils.PARWORKS_API_BASE_URL+HttpUtils.AUGMENT_IMAGE_GROUP_RESULT_PATH,sites,params);
+		HttpUtils.handleStatusCode(serverResponse.getStatusLine()
+				.getStatusCode());
+		List<AugmentImageResultResponse> augmentedImageResults = new ArrayList<AugmentImageResultResponse>();
+		try {
+		  JsonFactory f = new JsonFactory();
+		  JsonParser jp = f.createJsonParser(ARResponseUtils.convertHttpResponseToString(serverResponse));
+		  // advance stream to START_ARRAY first:
+		  jp.nextToken();
+		  // and then each time, advance to opening START_OBJECT
+		  while (jp.nextToken() == JsonToken.START_OBJECT) {
+			  Log.d(TAG,"Parsing json token");
+			  ARResponseHandler responseHandler = new ARResponseHandlerImpl();
+				AugmentImageResultResponse augmentImageResult = responseHandler
+						.handleResponse(jp, AugmentImageResultResponse.class);
+			  augmentedImageResults.add(augmentImageResult);
+		  }
+		} catch(Exception e) {
+			throw new ARException("Failed to parse json.",e);
+		}
+		
+		List<AugmentedData> allAugmentedData = new ArrayList<AugmentedData>();
+		for(AugmentImageResultResponse response : augmentedImageResults) {
+			allAugmentedData.add(convertAugmentResultResponse(imageId, response));
+		}
+		return allAugmentedData;
 	}
 	
 	/**

@@ -15,6 +15,8 @@ package com.parworks.androidlibrary.response;
 
 import org.apache.http.HttpResponse;
 
+import com.fasterxml.jackson.core.JsonParser;
+
 
 /**
  * Parses the http response from an AR endpoint and creates the desired object.
@@ -35,5 +37,6 @@ public interface ARResponseHandler {
 	 */
 	public <T> T handleResponse(HttpResponse serverResponse, Class<T> typeOfResponse );
 	public <T> T handleResponse(String contentString, Class<T> typeOfResponse);
+	public <T> T handleResponse(JsonParser jp, Class<T> typeOfResponse);
 
 }

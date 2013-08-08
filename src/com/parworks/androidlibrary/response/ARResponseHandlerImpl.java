@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +60,25 @@ public class ARResponseHandlerImpl implements ARResponseHandler {
 			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of illegal state. Json was : " + contentString,e);
 		} catch (IOException e) {
 			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of an ioexception. Json was : " + contentString,e);
+		}
+		return responseObject;
+	}
+	
+	@Override
+	public <T> T handleResponse(JsonParser jp, Class<T> typeOfResponse) {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		T responseObject = null;
+		try {
+			responseObject = mapper.readValue(jp,typeOfResponse);
+		} catch (JsonParseException e) {
+			throw new ARException("Couldn't create the object " + typeOfResponse + " because the json was malformed : " + jp.toString(),e);
+		} catch (JsonMappingException e) {
+			throw new ARException("Mapping the json response to the response object " + typeOfResponse + " failed.  Json was : " + jp.toString() ,e);
+		} catch (IllegalStateException e) {
+			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of illegal state. Json was : " + jp.toString(),e);
+		} catch (IOException e) {
+			throw new ARException("Couldn't convert the json to object " + typeOfResponse + " because of an ioexception. Json was : " + jp.toString(),e);
 		}
 		return responseObject;
 	}
