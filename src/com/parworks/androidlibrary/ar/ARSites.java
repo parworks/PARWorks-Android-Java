@@ -34,7 +34,6 @@ import com.parworks.androidlibrary.response.ARResponseHandler;
 import com.parworks.androidlibrary.response.ARResponseHandlerImpl;
 import com.parworks.androidlibrary.response.ARResponseUtils;
 import com.parworks.androidlibrary.response.AugmentImageGroupResponse;
-import com.parworks.androidlibrary.response.AugmentImageGroupResultResponse;
 import com.parworks.androidlibrary.response.AugmentImageResultResponse;
 import com.parworks.androidlibrary.response.BasicResponse;
 import com.parworks.androidlibrary.response.GetSiteInfoResponse;
@@ -123,7 +122,7 @@ public class ARSites {
 //			}
 //			result.add(augmentedImage);
 //		}
-		List<AugmentedData> result = getAugmentedImageGroupResult(sites,augmentImageGroupResponse.getImgId());
+		List<AugmentedData> result = getAugmentedImageGroupResult(augmentImageGroupResponse.getSitesToCheck(),augmentImageGroupResponse.getImgId());
 		
 		// combine different results
 		AugmentedData finalData = null;

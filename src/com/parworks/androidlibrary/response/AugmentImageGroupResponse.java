@@ -21,6 +21,7 @@ public class AugmentImageGroupResponse {
 
 	private boolean mSuccess;
 	private String imgId;
+	private List<String> sitesToCheck;
 	private List<SiteImageBundle> candidates;
 	
 	public void setSuccess(boolean success) {
@@ -45,6 +46,14 @@ public class AugmentImageGroupResponse {
 
 	public void setImgId(String imgId) {
 		this.imgId = imgId;
+	}
+
+	public List<String> getSitesToCheck() {
+		return sitesToCheck;
+	}
+
+	public void setSitesToCheck(List<String> sitesToCheck) {
+		this.sitesToCheck = sitesToCheck;
 	}
 
 }
